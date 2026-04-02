@@ -9,7 +9,16 @@ interface ClientFormProps {
   onClose: () => void;
 }
 
-const fields = [
+interface FieldDef {
+  name: string;
+  label: string;
+  required?: boolean;
+  type?: string;
+  multiline?: boolean;
+  placeholder?: string;
+}
+
+const fields: FieldDef[] = [
   { name: "company_name", label: "Company Name", required: true },
   { name: "industry", label: "Industry" },
   { name: "contact_name", label: "Contact Name" },
@@ -22,7 +31,7 @@ const fields = [
   { name: "brand_voice", label: "Brand Voice", multiline: true, placeholder: "Describe the tone and style of their brand" },
   { name: "competitors", label: "Competitors", multiline: true, placeholder: "List key competitors" },
   { name: "budget", label: "Budget" },
-] as const;
+];
 
 export function ClientForm({ onClose }: ClientFormProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
