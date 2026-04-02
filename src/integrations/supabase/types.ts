@@ -14,7 +14,185 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          brand_voice: string | null
+          budget: string | null
+          company_name: string
+          competitors: string | null
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          goals: string | null
+          id: string
+          industry: string | null
+          notes: string | null
+          offer: string | null
+          positioning: string | null
+          status: Database["public"]["Enums"]["client_status"]
+          target_audience: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          brand_voice?: string | null
+          budget?: string | null
+          company_name: string
+          competitors?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          offer?: string | null
+          positioning?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          target_audience?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          brand_voice?: string | null
+          budget?: string | null
+          company_name?: string
+          competitors?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          offer?: string | null
+          positioning?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          target_audience?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      copy_outputs: {
+        Row: {
+          call_to_action: string | null
+          client_id: string
+          content: string
+          copy_type: Database["public"]["Enums"]["copy_type"]
+          created_at: string
+          id: string
+          metadata: Json | null
+          platform: string | null
+          status: Database["public"]["Enums"]["output_status"]
+          strategy_id: string | null
+          target_audience: string | null
+          title: string
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          call_to_action?: string | null
+          client_id: string
+          content: string
+          copy_type: Database["public"]["Enums"]["copy_type"]
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          platform?: string | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          target_audience?: string | null
+          title: string
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          call_to_action?: string | null
+          client_id?: string
+          content?: string
+          copy_type?: Database["public"]["Enums"]["copy_type"]
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          platform?: string | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          target_audience?: string | null
+          title?: string
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copy_outputs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "copy_outputs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategies: {
+        Row: {
+          campaign_channels: string[] | null
+          client_id: string
+          content: string
+          created_at: string
+          funnel_structure: Json | null
+          id: string
+          key_messages: string[] | null
+          status: Database["public"]["Enums"]["output_status"]
+          strategy_type: Database["public"]["Enums"]["strategy_type"]
+          target_segments: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_channels?: string[] | null
+          client_id: string
+          content: string
+          created_at?: string
+          funnel_structure?: Json | null
+          id?: string
+          key_messages?: string[] | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_type?: Database["public"]["Enums"]["strategy_type"]
+          target_segments?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_channels?: string[] | null
+          client_id?: string
+          content?: string
+          created_at?: string
+          funnel_structure?: Json | null
+          id?: string
+          key_messages?: string[] | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_type?: Database["public"]["Enums"]["strategy_type"]
+          target_segments?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategies_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +201,22 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      client_status: "onboarding" | "active" | "paused" | "completed"
+      copy_type:
+        | "ad_copy"
+        | "email_sequence"
+        | "landing_page"
+        | "sales_page"
+        | "social_post"
+        | "sms"
+        | "headline"
+      output_status: "draft" | "review" | "approved" | "deployed"
+      strategy_type:
+        | "full_funnel"
+        | "top_of_funnel"
+        | "mid_funnel"
+        | "bottom_funnel"
+        | "retention"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +343,25 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      client_status: ["onboarding", "active", "paused", "completed"],
+      copy_type: [
+        "ad_copy",
+        "email_sequence",
+        "landing_page",
+        "sales_page",
+        "social_post",
+        "sms",
+        "headline",
+      ],
+      output_status: ["draft", "review", "approved", "deployed"],
+      strategy_type: [
+        "full_funnel",
+        "top_of_funnel",
+        "mid_funnel",
+        "bottom_funnel",
+        "retention",
+      ],
+    },
   },
 } as const
