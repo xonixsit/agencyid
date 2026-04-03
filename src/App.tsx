@@ -9,6 +9,7 @@ import Strategist from "./pages/Strategist";
 import Copywriter from "./pages/Copywriter";
 import Campaigns from "./pages/Campaigns";
 import Automations from "./pages/Automations";
+import ClientDetail from "./pages/ClientDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
