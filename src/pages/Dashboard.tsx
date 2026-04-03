@@ -34,7 +34,7 @@ const agents = [
     icon: Target,
     title: "Media Buyer",
     description: "Maps campaign structures with audience targeting, budget allocation, and platform logic.",
-    status: "idle" as const,
+    status: "active" as const,
     metric: "—",
     metricLabel: "campaigns mapped",
     path: "/campaigns",
