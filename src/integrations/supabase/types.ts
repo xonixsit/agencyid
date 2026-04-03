@@ -140,6 +140,75 @@ export type Database = {
           },
         ]
       }
+      media_plans: {
+        Row: {
+          ad_placements: Json | null
+          audience_targeting: Json | null
+          campaign_objective: string
+          campaign_structure: Json | null
+          client_id: string
+          content: string
+          created_at: string
+          daily_budget: string | null
+          id: string
+          platform: string
+          status: Database["public"]["Enums"]["output_status"]
+          strategy_id: string | null
+          title: string
+          total_budget: string | null
+          updated_at: string
+        }
+        Insert: {
+          ad_placements?: Json | null
+          audience_targeting?: Json | null
+          campaign_objective?: string
+          campaign_structure?: Json | null
+          client_id: string
+          content: string
+          created_at?: string
+          daily_budget?: string | null
+          id?: string
+          platform?: string
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title: string
+          total_budget?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ad_placements?: Json | null
+          audience_targeting?: Json | null
+          campaign_objective?: string
+          campaign_structure?: Json | null
+          client_id?: string
+          content?: string
+          created_at?: string
+          daily_budget?: string | null
+          id?: string
+          platform?: string
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title?: string
+          total_budget?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_plans_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategies: {
         Row: {
           campaign_channels: string[] | null
