@@ -8,7 +8,7 @@ type: feature
 1. **Strategist** ✅ — Full funnel strategy generation from client data
 2. **Copywriter** ✅ — Ad copy, emails, landing pages, sales pages
 3. **Media Buyer** ✅ — Meta/Google campaign structures, targeting, budget allocation, scaling playbooks
-4. **Automation Builder** — CRM workflows, nurture sequences, GHL automations (Phase 2)
+4. **Automation Builder** ✅ — CRM workflows, nurture sequences, GHL automations (5 types)
 5. **Project Manager** — Task assignment, deliverable tracking, timelines (Phase 2)
 6. **Conversion Designer** — GHL funnel structures, page layouts, section design (Phase 2)
 7. **Graphic Designer** — Creative direction, ad visuals, content design (Phase 3)
@@ -18,4 +18,4 @@ type: feature
 - Each agent = Supabase edge function calling Lovable AI (Gemini 3 Flash)
 - Structured system prompts enforce production-ready, GHL-compatible output
 - Client data flows through: Onboarding → Strategy → Copy/Media/Automation
-- Outputs stored in dedicated tables: strategies, copy_outputs, media_plans
+- Outputs stored in dedicated tables: strategies, copy_outputs, media_plans, automations
