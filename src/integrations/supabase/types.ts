@@ -200,6 +200,69 @@ export type Database = {
           },
         ]
       }
+      creative_briefs: {
+        Row: {
+          brief_type: string
+          client_id: string
+          color_palette: Json | null
+          content: string
+          created_at: string
+          dimensions: Json | null
+          id: string
+          platform: string | null
+          status: Database["public"]["Enums"]["output_status"]
+          strategy_id: string | null
+          title: string
+          updated_at: string
+          visual_direction: string | null
+        }
+        Insert: {
+          brief_type?: string
+          client_id: string
+          color_palette?: Json | null
+          content: string
+          created_at?: string
+          dimensions?: Json | null
+          id?: string
+          platform?: string | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title: string
+          updated_at?: string
+          visual_direction?: string | null
+        }
+        Update: {
+          brief_type?: string
+          client_id?: string
+          color_palette?: Json | null
+          content?: string
+          created_at?: string
+          dimensions?: Json | null
+          id?: string
+          platform?: string | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title?: string
+          updated_at?: string
+          visual_direction?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creative_briefs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creative_briefs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funnel_designs: {
         Row: {
           client_id: string
