@@ -48,12 +48,12 @@ export default function GraphicDesigner() {
     queryKey: ["creative_briefs"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("creative_briefs")
+        .from("creative_briefs" as any)
         .select("*")
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data;
+      return data as any[];
     },
   });
 
@@ -79,7 +79,7 @@ export default function GraphicDesigner() {
     mutationFn: async () => {
       if (!generatedBrief || !selectedClientId) throw new Error("Nothing to save");
       const client = clients?.find((c) => c.id === selectedClientId);
-      const { error } = await supabase.from("creative_briefs").insert({
+      const { error } = await supabase.from("creative_briefs" as any).insert({
         client_id: selectedClientId,
         title: `${BRIEF_TYPES.find((b) => b.value === briefType)?.label} — ${client?.company_name}`,
         content: generatedBrief,

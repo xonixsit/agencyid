@@ -8,6 +8,7 @@ import {
   Target,
   Zap,
   BarChart3,
+  Paintbrush,
   Settings,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ const navItems = [
   { label: "Campaigns", icon: Target, path: "/campaigns" },
   { label: "Automations", icon: Zap, path: "/automations" },
   { label: "Funnels", icon: BarChart3, path: "/conversion-designer" },
+  { label: "Designer", icon: Paintbrush, path: "/graphic-designer" },
 ];
 
 export function AppSidebar() {
