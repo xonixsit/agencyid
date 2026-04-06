@@ -200,6 +200,69 @@ export type Database = {
           },
         ]
       }
+      funnel_designs: {
+        Row: {
+          client_id: string
+          content: string
+          created_at: string
+          flow_structure: Json | null
+          funnel_type: string
+          ghl_template: Json | null
+          id: string
+          page_count: number | null
+          sections: Json | null
+          status: Database["public"]["Enums"]["output_status"]
+          strategy_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          content: string
+          created_at?: string
+          flow_structure?: Json | null
+          funnel_type?: string
+          ghl_template?: Json | null
+          id?: string
+          page_count?: number | null
+          sections?: Json | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          content?: string
+          created_at?: string
+          flow_structure?: Json | null
+          funnel_type?: string
+          ghl_template?: Json | null
+          id?: string
+          page_count?: number | null
+          sections?: Json | null
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_designs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnel_designs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_plans: {
         Row: {
           ad_placements: Json | null
