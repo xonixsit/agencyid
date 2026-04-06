@@ -61,10 +61,10 @@ const agents = [
     icon: BarChart3,
     title: "Conversion Designer",
     description: "Outputs GHL-ready funnel structures with section layouts, copy placement, and flow design.",
-    status: "idle" as const,
+    status: "active" as const,
     metric: "—",
     metricLabel: "funnels designed",
-    path: "/",
+    path: "/conversion-designer",
   },
 ];
 
