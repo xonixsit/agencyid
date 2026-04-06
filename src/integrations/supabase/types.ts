@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      automations: {
+        Row: {
+          automation_type: string
+          client_id: string
+          content: string
+          created_at: string
+          ghl_template: Json | null
+          id: string
+          status: Database["public"]["Enums"]["output_status"]
+          strategy_id: string | null
+          title: string
+          trigger_event: string | null
+          updated_at: string
+          workflow_steps: Json | null
+        }
+        Insert: {
+          automation_type?: string
+          client_id: string
+          content: string
+          created_at?: string
+          ghl_template?: Json | null
+          id?: string
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title: string
+          trigger_event?: string | null
+          updated_at?: string
+          workflow_steps?: Json | null
+        }
+        Update: {
+          automation_type?: string
+          client_id?: string
+          content?: string
+          created_at?: string
+          ghl_template?: Json | null
+          id?: string
+          status?: Database["public"]["Enums"]["output_status"]
+          strategy_id?: string | null
+          title?: string
+          trigger_event?: string | null
+          updated_at?: string
+          workflow_steps?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automations_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           brand_voice: string | null
