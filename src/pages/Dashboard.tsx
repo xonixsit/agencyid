@@ -43,7 +43,7 @@ const agents = [
     icon: Zap,
     title: "Automation Builder",
     description: "Creates CRM workflows, nurture sequences, and GHL-ready automation blueprints.",
-    status: "idle" as const,
+    status: "active" as const,
     metric: "—",
     metricLabel: "automations built",
     path: "/automations",
