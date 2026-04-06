@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AgentCard } from "@/components/dashboard/AgentCard";
 import { StatsBar } from "@/components/dashboard/StatsBar";
-import { Brain, PenTool, Target, Zap, Users, BarChart3 } from "lucide-react";
+import { Brain, PenTool, Target, Zap, Users, BarChart3, Paintbrush } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const stats = [
@@ -65,6 +65,15 @@ const agents = [
     metric: "—",
     metricLabel: "funnels designed",
     path: "/conversion-designer",
+  },
+  {
+    icon: Paintbrush,
+    title: "Graphic Designer",
+    description: "Generates creative direction briefs, ad visual concepts, and content design specifications.",
+    status: "active" as const,
+    metric: "—",
+    metricLabel: "briefs created",
+    path: "/graphic-designer",
   },
 ];
 
