@@ -7,6 +7,7 @@ import {
   PenTool,
   Target,
   Zap,
+  BarChart3,
   Settings,
 } from "lucide-react";
 
@@ -17,6 +18,7 @@ const navItems = [
   { label: "Copywriter", icon: PenTool, path: "/copywriter" },
   { label: "Campaigns", icon: Target, path: "/campaigns" },
   { label: "Automations", icon: Zap, path: "/automations" },
+  { label: "Funnels", icon: BarChart3, path: "/conversion-designer" },
 ];
 
 export function AppSidebar() {
