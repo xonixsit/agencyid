@@ -142,7 +142,6 @@ export default function ConversionDesigner() {
               <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}>
                 {generateMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Designing...</> : <><Layout className="h-4 w-4 mr-2" />Design Funnel</>}
               </Button>
-              </Button>
               {generatedDesign && (
                 <Button variant="outline" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
                   <Save className="h-4 w-4 mr-2" />Save Design
