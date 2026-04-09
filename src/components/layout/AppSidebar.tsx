@@ -9,6 +9,7 @@ import {
   Zap,
   BarChart3,
   Paintbrush,
+  ClipboardList,
   Settings,
 } from "lucide-react";
 
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Automations", icon: Zap, path: "/automations" },
   { label: "Funnels", icon: BarChart3, path: "/conversion-designer" },
   { label: "Designer", icon: Paintbrush, path: "/graphic-designer" },
+  { label: "PM", icon: ClipboardList, path: "/project-manager" },
 ];
 
 export function AppSidebar() {

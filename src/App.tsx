@@ -11,6 +11,7 @@ import Campaigns from "./pages/Campaigns";
 import Automations from "./pages/Automations";
 import ConversionDesigner from "./pages/ConversionDesigner";
 import GraphicDesigner from "./pages/GraphicDesigner";
+import ProjectManager from "./pages/ProjectManager";
 import ClientDetail from "./pages/ClientDetail";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/automations" element={<Automations />} />
           <Route path="/conversion-designer" element={<ConversionDesigner />} />
           <Route path="/graphic-designer" element={<GraphicDesigner />} />
+          <Route path="/project-manager" element={<ProjectManager />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
