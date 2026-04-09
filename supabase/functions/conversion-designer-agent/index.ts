@@ -51,7 +51,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { client, funnel_type, context } = await req.json();
+    const { client, funnel_type, context, strategy_context } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -98,6 +98,7 @@ Format your response in clear markdown with:
 **Goals:** ${client.goals || "Not specified"}
 **Website:** ${client.website_url || "Not specified"}
 ${context ? `\n**Additional Context:** ${context}` : ""}
+${strategy_context ? `\n--- STRATEGY CONTEXT (align funnel design to this strategy) ---\n${strategy_context}\n--- END STRATEGY CONTEXT ---\n` : ""}
 
 ${typeInstructions}
 

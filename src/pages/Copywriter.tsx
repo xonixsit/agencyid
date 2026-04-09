@@ -3,8 +3,9 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PenTool, Loader2, ChevronDown, Copy, Check } from "lucide-react";
+import { PenTool, Loader2, ChevronDown, Copy, Check, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import ReactMarkdown from "react-markdown";
 
 const copyTypes = [
@@ -33,6 +34,7 @@ export default function Copywriter() {
   const [generatedCopy, setGeneratedCopy] = useState("");
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { data: latestStrategy } = useLatestStrategy(selectedClientId);
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
@@ -62,6 +64,7 @@ export default function Copywriter() {
           copy_type: copyType,
           platform,
           additional_context: additionalContext,
+          strategy_context: latestStrategy?.content || null,
         },
       });
 
@@ -140,6 +143,13 @@ export default function Copywriter() {
               onChange={(e) => setAdditionalContext(e.target.value)}
             />
           </div>
+
+          {selectedClientId && latestStrategy && (
+            <div className="flex items-center gap-2 text-xs text-primary">
+              <Brain className="h-3.5 w-3.5" />
+              <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
 
           <Button variant="glow" onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}>
             {generateMutation.isPending ? (

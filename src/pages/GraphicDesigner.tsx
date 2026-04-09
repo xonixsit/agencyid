@@ -7,7 +7,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
-import { Loader2, Copy, Save, Palette, ChevronDown } from "lucide-react";
+import { useLatestStrategy } from "@/hooks/use-latest-strategy";
+import { Loader2, Copy, Save, Palette, ChevronDown, Brain } from "lucide-react";
 
 const BRIEF_TYPES = [
   { value: "ad_creative", label: "Ad Creative Brief" },
@@ -34,6 +35,7 @@ export default function GraphicDesigner() {
   const [context, setContext] = useState("");
   const [generatedBrief, setGeneratedBrief] = useState("");
   const queryClient = useQueryClient();
+  const { data: latestStrategy } = useLatestStrategy(selectedClientId);
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
@@ -62,7 +64,7 @@ export default function GraphicDesigner() {
       const client = clients?.find((c) => c.id === selectedClientId);
       if (!client) throw new Error("Select a client");
       const { data, error } = await supabase.functions.invoke("graphic-designer-agent", {
-        body: { client, brief_type: briefType, platform, context },
+        body: { client, brief_type: briefType, platform, context, strategy_context: latestStrategy?.content || null },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
@@ -124,6 +126,13 @@ export default function GraphicDesigner() {
             <Textarea value={context} onChange={(e) => setContext(e.target.value)}
               placeholder="Specific visual references, colour preferences, style notes…" className="h-20 bg-muted/30 border-border" />
           </div>
+
+          {selectedClientId && latestStrategy && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Brain className="h-3.5 w-3.5" />
+              <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
 
           <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}
             className="w-full">
