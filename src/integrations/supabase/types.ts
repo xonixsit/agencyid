@@ -395,6 +395,54 @@ export type Database = {
           },
         ]
       }
+      project_tasks: {
+        Row: {
+          agent_type: string
+          assigned_to: string | null
+          client_id: string
+          created_at: string
+          deliverable_url: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_type?: string
+          assigned_to?: string | null
+          client_id: string
+          created_at?: string
+          deliverable_url?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_type?: string
+          assigned_to?: string | null
+          client_id?: string
+          created_at?: string
+          deliverable_url?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       strategies: {
         Row: {
           campaign_channels: string[] | null

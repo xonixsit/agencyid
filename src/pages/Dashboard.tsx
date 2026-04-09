@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AgentCard } from "@/components/dashboard/AgentCard";
 import { StatsBar } from "@/components/dashboard/StatsBar";
-import { Brain, PenTool, Target, Zap, Users, BarChart3, Paintbrush } from "lucide-react";
+import { Brain, PenTool, Target, Zap, ClipboardList, BarChart3, Paintbrush } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const stats = [
@@ -49,13 +49,13 @@ const agents = [
     path: "/automations",
   },
   {
-    icon: Users,
+    icon: ClipboardList,
     title: "Project Manager",
     description: "Assigns tasks, tracks deliverables, and manages client timelines across all agents.",
-    status: "idle" as const,
+    status: "active" as const,
     metric: "—",
     metricLabel: "tasks managed",
-    path: "/",
+    path: "/project-manager",
   },
   {
     icon: BarChart3,
