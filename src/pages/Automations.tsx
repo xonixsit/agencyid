@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Zap, Loader2, Save, ChevronDown } from "lucide-react";
+import { Zap, Loader2, Save, ChevronDown, Brain } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import ReactMarkdown from "react-markdown";
 
 const AUTOMATION_TYPES = [
@@ -45,12 +46,13 @@ export default function Automations() {
   });
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
+  const { data: latestStrategy } = useLatestStrategy(selectedClientId);
 
   const generateMutation = useMutation({
     mutationFn: async () => {
       if (!selectedClient) throw new Error("Select a client first");
       const { data, error } = await supabase.functions.invoke("automation-builder-agent", {
-        body: { client: selectedClient, automation_type: automationType, context },
+        body: { client: selectedClient, automation_type: automationType, context, strategy_context: latestStrategy?.content || null },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
@@ -105,6 +107,12 @@ export default function Automations() {
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">Additional Context (optional)</label>
             <Textarea value={context} onChange={(e) => setContext(e.target.value)} placeholder="e.g. Focus on SMS-heavy nurture, 7-day sequence, webinar funnel..." className="bg-background border-border text-sm" rows={2} />
           </div>
+          {selectedClientId && latestStrategy && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Brain className="h-3.5 w-3.5" />
+              <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
           <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending} className="w-full">
             {generateMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generating Blueprint...</> : "Generate Automation"}
           </Button>

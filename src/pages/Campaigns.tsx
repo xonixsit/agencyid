@@ -3,8 +3,9 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Target, Loader2, ChevronDown, Save } from "lucide-react";
+import { Target, Loader2, ChevronDown, Save, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import ReactMarkdown from "react-markdown";
 import { useSearchParams } from "react-router-dom";
 
@@ -40,6 +41,7 @@ export default function Campaigns() {
   const [generatedPlan, setGeneratedPlan] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: latestStrategy } = useLatestStrategy(selectedClientId);
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
@@ -79,6 +81,7 @@ export default function Campaigns() {
           platform,
           campaign_objective: objective,
           budget_split: BUDGET_SPLITS.find((b) => b.value === budgetSplit)?.label,
+          strategy_context: latestStrategy?.content || null,
         },
       });
 
@@ -158,6 +161,13 @@ export default function Campaigns() {
               options={BUDGET_SPLITS}
             />
           </div>
+
+          {selectedClientId && latestStrategy && (
+            <div className="flex items-center gap-2 text-xs text-primary">
+              <Brain className="h-3.5 w-3.5" />
+              <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
 
           <Button
             variant="glow"
