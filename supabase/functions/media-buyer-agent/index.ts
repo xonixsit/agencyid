@@ -9,7 +9,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { client, platform, campaign_objective, budget_split } = await req.json();
+    const { client, platform, campaign_objective, budget_split, strategy_context } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -41,6 +41,7 @@ Competitors: ${client.competitors || "Not specified"}
 Total Budget: ${client.budget || "Not specified"}
 Campaign Objective: ${campaign_objective}
 Budget Split Preference: ${budget_split || "Balanced across funnel stages"}
+${strategy_context ? `\n--- STRATEGY CONTEXT (align campaigns to this strategy) ---\n${strategy_context}\n--- END STRATEGY CONTEXT ---\n` : ""}
 
 Provide a complete media plan with:
 

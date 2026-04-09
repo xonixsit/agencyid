@@ -70,7 +70,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { client, brief_type, platform, context } = await req.json();
+    const { client, brief_type, platform, context, strategy_context } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -100,6 +100,7 @@ Brand Voice: ${client.brand_voice || "Not specified"}
 Goals: ${client.goals || "Not specified"}
 ${platform ? `Platform: ${platform}` : ""}
 ${context ? `Additional Context: ${context}` : ""}
+${strategy_context ? `\n--- STRATEGY CONTEXT (align creative direction to this strategy) ---\n${strategy_context}\n--- END STRATEGY CONTEXT ---\n` : ""}
 
 Deliver a complete, production-ready creative brief that a designer could execute immediately.`;
 
