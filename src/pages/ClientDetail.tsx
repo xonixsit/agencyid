@@ -3,8 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building2, Globe, Mail, User, Target, Megaphone, Palette, Trophy, Users, DollarSign, FileText, Sparkles } from "lucide-react";
+import { ArrowLeft, Building2, Globe, Mail, User, Target, Megaphone, Palette, Trophy, Users, DollarSign, FileText, Sparkles, Zap, BarChart3, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 const statusColor = (s: string) =>
   s === "active" ? "bg-status-active/10 text-status-active" :
@@ -34,6 +36,70 @@ function InfoItem({ icon, label, value, full }: InfoItemProps) {
         {label}
       </div>
       <p className="text-sm text-foreground whitespace-pre-wrap">{value}</p>
+    </div>
+  );
+}
+
+function OutputCard({ item, typeField, typeLabel }: { item: any; typeField?: string; typeLabel?: string }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="rounded-md border border-border bg-background p-4 space-y-2">
+      <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
+        <div className="flex items-center gap-2">
+          {typeField && item[typeField] && (
+            <span className="text-xs text-muted-foreground font-mono">{String(item[typeField]).replace(/_/g, " ")}</span>
+          )}
+          {item.platform && <span className="text-xs text-dim">· {item.platform}</span>}
+          <span className={cn(
+            "status-badge text-xs",
+            item.status === "approved" ? "bg-status-active/10 text-status-active" : "bg-muted text-muted-foreground"
+          )}>
+            {item.status}
+          </span>
+        </div>
+      </div>
+      {!expanded && (
+        <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap">
+          {(item.content || item.description || "").slice(0, 200)}...
+        </p>
+      )}
+      {expanded && (
+        <div className="prose prose-invert prose-sm max-w-none mt-2">
+          <ReactMarkdown>{item.content || item.description || ""}</ReactMarkdown>
+        </div>
+      )}
+      <p className="text-xs text-dim">{new Date(item.created_at).toLocaleDateString()}</p>
+    </div>
+  );
+}
+
+function OutputSection({ title, count, items, typeField, generatePath, generateLabel }: {
+  title: string; count: number; items: any[]; typeField?: string;
+  generatePath?: string; generateLabel?: string;
+}) {
+  const navigate = useNavigate();
+  return (
+    <div className="rounded-lg border border-border bg-card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground">
+          {title} ({count})
+        </h2>
+        {generatePath && (
+          <Button variant="ghost" size="sm" onClick={() => navigate(generatePath)}>
+            {generateLabel || "Generate New"}
+          </Button>
+        )}
+      </div>
+      {!items.length ? (
+        <p className="text-xs text-dim py-6 text-center">No {title.toLowerCase()} generated yet</p>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <OutputCard key={item.id} item={item} typeField={typeField} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -72,6 +138,56 @@ export default function ClientDetail() {
     enabled: !!id,
   });
 
+  const { data: mediaPlans } = useQuery({
+    queryKey: ["media_plans", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("media_plans").select("*").eq("client_id", id!).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const { data: automations } = useQuery({
+    queryKey: ["automations", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("automations").select("*").eq("client_id", id!).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const { data: funnelDesigns } = useQuery({
+    queryKey: ["funnel_designs", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("funnel_designs").select("*").eq("client_id", id!).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const { data: creativeBriefs } = useQuery({
+    queryKey: ["creative_briefs", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("creative_briefs").select("*").eq("client_id", id!).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const { data: projectTasks } = useQuery({
+    queryKey: ["project_tasks", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("project_tasks").select("*").eq("client_id", id!).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -88,9 +204,7 @@ export default function ClientDetail() {
       <AppLayout>
         <div className="text-center py-20">
           <p className="text-muted-foreground">Client not found</p>
-          <Button variant="ghost" className="mt-4" onClick={() => navigate("/clients")}>
-            Back to Clients
-          </Button>
+          <Button variant="ghost" className="mt-4" onClick={() => navigate("/clients")}>Back to Clients</Button>
         </div>
       </AppLayout>
     );
@@ -121,12 +235,10 @@ export default function ClientDetail() {
           </div>
           <div className="flex gap-2">
             <Button variant="terminal" onClick={() => navigate(`/strategist?client=${client.id}`)}>
-              <Sparkles className="h-4 w-4" />
-              Generate Strategy
+              <Sparkles className="h-4 w-4" /> Strategy
             </Button>
             <Button variant="terminal" onClick={() => navigate(`/copywriter?client=${client.id}`)}>
-              <FileText className="h-4 w-4" />
-              Generate Copy
+              <FileText className="h-4 w-4" /> Copy
             </Button>
           </div>
         </div>
@@ -149,78 +261,26 @@ export default function ClientDetail() {
           </div>
         </div>
 
-        {/* Strategies */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground">
-              Strategies ({strategies?.length || 0})
-            </h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/strategist?client=${client.id}`)}>
-              Generate New
-            </Button>
-          </div>
-          {!strategies?.length ? (
-            <p className="text-xs text-dim py-6 text-center">No strategies generated yet</p>
-          ) : (
-            <div className="space-y-3">
-              {strategies.map((s) => (
-                <div key={s.id} className="rounded-md border border-border bg-background p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-foreground">{s.title}</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground font-mono">{s.strategy_type.replace(/_/g, " ")}</span>
-                      <span className={cn(
-                        "status-badge text-xs",
-                        s.status === "approved" ? "bg-status-active/10 text-status-active" : "bg-muted text-muted-foreground"
-                      )}>
-                        {s.status}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-3 whitespace-pre-wrap">{s.content.slice(0, 300)}...</p>
-                  <p className="text-xs text-dim">{new Date(s.created_at).toLocaleDateString()}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <OutputSection title="Strategies" count={strategies?.length || 0} items={strategies || []}
+          typeField="strategy_type" generatePath={`/strategist?client=${client.id}`} />
 
-        {/* Copy Outputs */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground">
-              Copy Outputs ({copyOutputs?.length || 0})
-            </h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/copywriter?client=${client.id}`)}>
-              Generate New
-            </Button>
-          </div>
-          {!copyOutputs?.length ? (
-            <p className="text-xs text-dim py-6 text-center">No copy generated yet</p>
-          ) : (
-            <div className="space-y-3">
-              {copyOutputs.map((c) => (
-                <div key={c.id} className="rounded-md border border-border bg-background p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-foreground">{c.title}</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground font-mono">{c.copy_type.replace(/_/g, " ")}</span>
-                      {c.platform && <span className="text-xs text-dim">· {c.platform}</span>}
-                      <span className={cn(
-                        "status-badge text-xs",
-                        c.status === "approved" ? "bg-status-active/10 text-status-active" : "bg-muted text-muted-foreground"
-                      )}>
-                        {c.status}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-3 whitespace-pre-wrap">{c.content.slice(0, 300)}...</p>
-                  <p className="text-xs text-dim">{new Date(c.created_at).toLocaleDateString()}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <OutputSection title="Copy Outputs" count={copyOutputs?.length || 0} items={copyOutputs || []}
+          typeField="copy_type" generatePath={`/copywriter?client=${client.id}`} />
+
+        <OutputSection title="Media Plans" count={mediaPlans?.length || 0} items={mediaPlans || []}
+          typeField="campaign_objective" generatePath={`/campaigns?client=${client.id}`} />
+
+        <OutputSection title="Automations" count={automations?.length || 0} items={automations || []}
+          typeField="automation_type" generatePath={`/automations?client=${client.id}`} />
+
+        <OutputSection title="Funnel Designs" count={funnelDesigns?.length || 0} items={funnelDesigns || []}
+          typeField="funnel_type" generatePath={`/funnels?client=${client.id}`} />
+
+        <OutputSection title="Creative Briefs" count={creativeBriefs?.length || 0} items={creativeBriefs || []}
+          typeField="brief_type" generatePath={`/designer?client=${client.id}`} />
+
+        <OutputSection title="Project Plans" count={projectTasks?.length || 0} items={projectTasks || []}
+          typeField="agent_type" generatePath={`/project-manager?client=${client.id}`} />
       </div>
     </AppLayout>
   );

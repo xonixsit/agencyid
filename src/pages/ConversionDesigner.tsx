@@ -56,9 +56,20 @@ export default function ConversionDesigner() {
       if (data.error) throw new Error(data.error);
       return data.design;
     },
-    onSuccess: (design) => {
+    onSuccess: async (design) => {
       setGeneratedDesign(design);
-      toast.success("Funnel design generated!");
+      const { error } = await supabase.from("funnel_designs").insert({
+        client_id: selectedClient!.id,
+        title: `${funnelType.replace(/_/g, " ")} — ${selectedClient!.company_name}`,
+        content: design,
+        funnel_type: funnelType,
+      });
+      if (error) {
+        toast.error("Generated but failed to save: " + error.message);
+      } else {
+        toast.success("Funnel design generated & saved!");
+        queryClient.invalidateQueries({ queryKey: ["funnel_designs"] });
+      }
     },
     onError: (error: Error) => toast.error(error.message),
   });
