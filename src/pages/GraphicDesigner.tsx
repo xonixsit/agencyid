@@ -70,9 +70,23 @@ export default function GraphicDesigner() {
       if (data.error) throw new Error(data.error);
       return data.brief as string;
     },
-    onSuccess: (brief) => {
+    onSuccess: async (brief) => {
       setGeneratedBrief(brief);
-      toast({ title: "Creative brief generated" });
+      const client = clients?.find((c) => c.id === selectedClientId);
+      const { error } = await supabase.from("creative_briefs" as any).insert({
+        client_id: selectedClientId,
+        title: `${BRIEF_TYPES.find((b) => b.value === briefType)?.label} — ${client?.company_name}`,
+        content: brief,
+        brief_type: briefType,
+        platform: platform || null,
+        visual_direction: context || null,
+      });
+      if (error) {
+        toast({ title: "Generated but failed to save", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Creative brief generated & saved" });
+        queryClient.invalidateQueries({ queryKey: ["creative_briefs"] });
+      }
     },
     onError: (e: Error) => toast({ title: "Generation failed", description: e.message, variant: "destructive" }),
   });

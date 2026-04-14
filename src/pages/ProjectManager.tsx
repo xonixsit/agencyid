@@ -81,9 +81,22 @@ export default function ProjectManager() {
       if (data.error) throw new Error(data.error);
       return data.plan;
     },
-    onSuccess: (plan) => {
+    onSuccess: async (plan) => {
       setGeneratedPlan(plan);
-      toast({ title: "Project plan generated" });
+      const { error } = await supabase.from("project_tasks").insert({
+        client_id: selectedClientId,
+        title: `Project Plan — ${clients?.find((c) => c.id === selectedClientId)?.company_name}`,
+        description: plan,
+        agent_type: "project_manager",
+        priority: "high",
+        status: "todo",
+      });
+      if (error) {
+        toast({ title: "Plan generated but failed to save", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Project plan generated & saved" });
+        queryClient.invalidateQueries({ queryKey: ["project_tasks"] });
+      }
     },
     onError: (err: Error) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });

@@ -58,9 +58,21 @@ export default function Automations() {
       if (data.error) throw new Error(data.error);
       return data.automation;
     },
-    onSuccess: (automation) => {
+    onSuccess: async (automation) => {
       setGeneratedAutomation(automation);
-      toast.success("Automation blueprint generated");
+      const typeLabel = AUTOMATION_TYPES.find((t) => t.value === automationType)?.label || automationType;
+      const { error } = await supabase.from("automations").insert({
+        client_id: selectedClient!.id,
+        title: `${typeLabel} — ${selectedClient!.company_name}`,
+        automation_type: automationType,
+        content: automation,
+      });
+      if (error) {
+        toast.error("Generated but failed to save: " + error.message);
+      } else {
+        toast.success("Automation generated & saved");
+        refetchSaved();
+      }
     },
     onError: (err: Error) => toast.error(err.message),
   });

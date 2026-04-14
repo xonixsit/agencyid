@@ -88,9 +88,23 @@ export default function Campaigns() {
       if (response.error) throw response.error;
       return { ...response.data, client };
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setGeneratedPlan(data.media_plan);
-      toast({ title: "Media plan generated" });
+      const client = data.client;
+      const platformLabel = PLATFORMS.find((p) => p.value === platform)?.label || platform;
+      const { error } = await supabase.from("media_plans").insert({
+        client_id: selectedClientId,
+        title: `${platformLabel} — ${OBJECTIVES.find((o) => o.value === objective)?.label || objective} — ${client?.company_name}`,
+        content: data.media_plan,
+        platform,
+        campaign_objective: objective,
+      });
+      if (error) {
+        toast({ title: "Plan generated but failed to save", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Media plan generated & saved" });
+        queryClient.invalidateQueries({ queryKey: ["media_plans"] });
+      }
     },
     onError: (err: Error) => {
       toast({ title: "Generation failed", description: err.message, variant: "destructive" });
