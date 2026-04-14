@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PenTool, Loader2, ChevronDown, Copy, Check, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,7 @@ export default function Copywriter() {
   const [generatedCopy, setGeneratedCopy] = useState("");
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
 
   const { data: clients } = useQuery({
@@ -71,9 +72,25 @@ export default function Copywriter() {
       if (response.error) throw response.error;
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setGeneratedCopy(data.copy);
-      toast({ title: "Copy generated" });
+      const client = clients?.find((c) => c.id === selectedClientId);
+      const typeLabel = copyTypes.find((t) => t.value === copyType)?.label || copyType;
+      const { error } = await supabase.from("copy_outputs").insert({
+        client_id: selectedClientId,
+        title: `${typeLabel} — ${platform} — ${client?.company_name}`,
+        content: data.copy,
+        copy_type: copyType as any,
+        platform,
+        strategy_id: latestStrategy?.id || null,
+      });
+      if (error) {
+        console.error("Failed to save copy:", error);
+        toast({ title: "Copy generated but failed to save", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Copy generated & saved" });
+        queryClient.invalidateQueries({ queryKey: ["copy_outputs"] });
+      }
     },
     onError: (err: Error) => {
       toast({ title: "Generation failed", description: err.message, variant: "destructive" });
