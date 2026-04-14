@@ -48,10 +48,25 @@ export default function Strategist() {
       if (response.error) throw response.error;
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setGeneratedStrategy(data.strategy);
-      toast({ title: "Strategy generated" });
+      // Persist strategy to database so downstream agents can reference it
+      const client = clients?.find((c) => c.id === selectedClientId);
+      const { error } = await supabase.from("strategies").insert({
+        client_id: selectedClientId,
+        title: `${strategyType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())} Strategy — ${client?.company_name || "Client"}`,
+        content: data.strategy,
+        strategy_type: strategyType as any,
+        status: "draft",
+      });
+      if (error) {
+        console.error("Failed to save strategy:", error);
+        toast({ title: "Strategy generated but failed to save", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Strategy generated & saved" });
+      }
       queryClient.invalidateQueries({ queryKey: ["strategies"] });
+      queryClient.invalidateQueries({ queryKey: ["latest_strategy", selectedClientId] });
     },
     onError: (err: Error) => {
       toast({ title: "Generation failed", description: err.message, variant: "destructive" });
