@@ -101,9 +101,9 @@ function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; ty
   );
 }
 
-function OutputSection({ title, count, items, typeField, generatePath, generateLabel }: {
+function OutputSection({ title, count, items, typeField, generatePath, generateLabel, agentLabel, clientName }: {
   title: string; count: number; items: any[]; typeField?: string;
-  generatePath?: string; generateLabel?: string;
+  generatePath?: string; generateLabel?: string; agentLabel: string; clientName?: string;
 }) {
   const navigate = useNavigate();
   return (
@@ -123,7 +123,7 @@ function OutputSection({ title, count, items, typeField, generatePath, generateL
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <OutputCard key={item.id} item={item} typeField={typeField} />
+            <OutputCard key={item.id} item={item} typeField={typeField} agentLabel={agentLabel} clientName={clientName} />
           ))}
         </div>
       )}
