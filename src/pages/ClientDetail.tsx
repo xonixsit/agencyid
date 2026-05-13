@@ -3,10 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building2, Globe, Mail, User, Target, Megaphone, Palette, Trophy, Users, DollarSign, FileText, Sparkles, Zap, BarChart3, ListChecks } from "lucide-react";
+import { ArrowLeft, Building2, Globe, Mail, User, Target, Megaphone, Palette, Trophy, Users, DollarSign, FileText, Sparkles, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { downloadOutputPdf } from "@/lib/pdf-export";
 
 const statusColor = (s: string) =>
   s === "active" ? "bg-status-active/10 text-status-active" :
@@ -40,16 +41,39 @@ function InfoItem({ icon, label, value, full }: InfoItemProps) {
   );
 }
 
-function OutputCard({ item, typeField, typeLabel }: { item: any; typeField?: string; typeLabel?: string }) {
+function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; typeField?: string; agentLabel: string; clientName?: string }) {
   const [expanded, setExpanded] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const body = item.content || item.description || "";
+  const typeVal = typeField && item[typeField] ? String(item[typeField]).replace(/_/g, " ") : undefined;
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDownloading(true);
+    try {
+      await downloadOutputPdf({
+        title: item.title,
+        subtitle: clientName,
+        agentLabel,
+        meta: {
+          Type: typeVal,
+          Platform: item.platform,
+          Status: item.status,
+          Created: new Date(item.created_at).toLocaleDateString(),
+        },
+        content: body,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="rounded-md border border-border bg-background p-4 space-y-2">
       <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
         <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
         <div className="flex items-center gap-2">
-          {typeField && item[typeField] && (
-            <span className="text-xs text-muted-foreground font-mono">{String(item[typeField]).replace(/_/g, " ")}</span>
-          )}
+          {typeVal && <span className="text-xs text-muted-foreground font-mono">{typeVal}</span>}
           {item.platform && <span className="text-xs text-dim">· {item.platform}</span>}
           <span className={cn(
             "status-badge text-xs",
@@ -57,16 +81,19 @@ function OutputCard({ item, typeField, typeLabel }: { item: any; typeField?: str
           )}>
             {item.status}
           </span>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDownload} disabled={downloading} title="Download PDF">
+            <Download className="h-3.5 w-3.5" />
+          </Button>
         </div>
       </div>
       {!expanded && (
         <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap">
-          {(item.content || item.description || "").slice(0, 200)}...
+          {body.slice(0, 200)}...
         </p>
       )}
       {expanded && (
         <div className="prose prose-invert prose-sm max-w-none mt-2">
-          <ReactMarkdown>{item.content || item.description || ""}</ReactMarkdown>
+          <ReactMarkdown>{body}</ReactMarkdown>
         </div>
       )}
       <p className="text-xs text-dim">{new Date(item.created_at).toLocaleDateString()}</p>
@@ -74,9 +101,9 @@ function OutputCard({ item, typeField, typeLabel }: { item: any; typeField?: str
   );
 }
 
-function OutputSection({ title, count, items, typeField, generatePath, generateLabel }: {
+function OutputSection({ title, count, items, typeField, generatePath, generateLabel, agentLabel, clientName }: {
   title: string; count: number; items: any[]; typeField?: string;
-  generatePath?: string; generateLabel?: string;
+  generatePath?: string; generateLabel?: string; agentLabel: string; clientName?: string;
 }) {
   const navigate = useNavigate();
   return (
@@ -96,7 +123,7 @@ function OutputSection({ title, count, items, typeField, generatePath, generateL
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <OutputCard key={item.id} item={item} typeField={typeField} />
+            <OutputCard key={item.id} item={item} typeField={typeField} agentLabel={agentLabel} clientName={clientName} />
           ))}
         </div>
       )}
@@ -262,25 +289,32 @@ export default function ClientDetail() {
         </div>
 
         <OutputSection title="Strategies" count={strategies?.length || 0} items={strategies || []}
-          typeField="strategy_type" generatePath={`/strategist?client=${client.id}`} />
+          typeField="strategy_type" generatePath={`/strategist?client=${client.id}`}
+          agentLabel="Strategist" clientName={client.company_name} />
 
         <OutputSection title="Copy Outputs" count={copyOutputs?.length || 0} items={copyOutputs || []}
-          typeField="copy_type" generatePath={`/copywriter?client=${client.id}`} />
+          typeField="copy_type" generatePath={`/copywriter?client=${client.id}`}
+          agentLabel="Copywriter" clientName={client.company_name} />
 
         <OutputSection title="Media Plans" count={mediaPlans?.length || 0} items={mediaPlans || []}
-          typeField="campaign_objective" generatePath={`/campaigns?client=${client.id}`} />
+          typeField="campaign_objective" generatePath={`/campaigns?client=${client.id}`}
+          agentLabel="Media Buyer" clientName={client.company_name} />
 
         <OutputSection title="Automations" count={automations?.length || 0} items={automations || []}
-          typeField="automation_type" generatePath={`/automations?client=${client.id}`} />
+          typeField="automation_type" generatePath={`/automations?client=${client.id}`}
+          agentLabel="Automation Builder" clientName={client.company_name} />
 
         <OutputSection title="Funnel Designs" count={funnelDesigns?.length || 0} items={funnelDesigns || []}
-          typeField="funnel_type" generatePath={`/funnels?client=${client.id}`} />
+          typeField="funnel_type" generatePath={`/funnels?client=${client.id}`}
+          agentLabel="Conversion Designer" clientName={client.company_name} />
 
         <OutputSection title="Creative Briefs" count={creativeBriefs?.length || 0} items={creativeBriefs || []}
-          typeField="brief_type" generatePath={`/designer?client=${client.id}`} />
+          typeField="brief_type" generatePath={`/designer?client=${client.id}`}
+          agentLabel="Graphic Designer" clientName={client.company_name} />
 
         <OutputSection title="Project Plans" count={projectTasks?.length || 0} items={projectTasks || []}
-          typeField="agent_type" generatePath={`/project-manager?client=${client.id}`} />
+          typeField="agent_type" generatePath={`/project-manager?client=${client.id}`}
+          agentLabel="Project Manager" clientName={client.company_name} />
       </div>
     </AppLayout>
   );
