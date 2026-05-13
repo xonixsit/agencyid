@@ -289,25 +289,32 @@ export default function ClientDetail() {
         </div>
 
         <OutputSection title="Strategies" count={strategies?.length || 0} items={strategies || []}
-          typeField="strategy_type" generatePath={`/strategist?client=${client.id}`} />
+          typeField="strategy_type" generatePath={`/strategist?client=${client.id}`}
+          agentLabel="Strategist" clientName={client.company_name} />
 
         <OutputSection title="Copy Outputs" count={copyOutputs?.length || 0} items={copyOutputs || []}
-          typeField="copy_type" generatePath={`/copywriter?client=${client.id}`} />
+          typeField="copy_type" generatePath={`/copywriter?client=${client.id}`}
+          agentLabel="Copywriter" clientName={client.company_name} />
 
         <OutputSection title="Media Plans" count={mediaPlans?.length || 0} items={mediaPlans || []}
-          typeField="campaign_objective" generatePath={`/campaigns?client=${client.id}`} />
+          typeField="campaign_objective" generatePath={`/campaigns?client=${client.id}`}
+          agentLabel="Media Buyer" clientName={client.company_name} />
 
         <OutputSection title="Automations" count={automations?.length || 0} items={automations || []}
-          typeField="automation_type" generatePath={`/automations?client=${client.id}`} />
+          typeField="automation_type" generatePath={`/automations?client=${client.id}`}
+          agentLabel="Automation Builder" clientName={client.company_name} />
 
         <OutputSection title="Funnel Designs" count={funnelDesigns?.length || 0} items={funnelDesigns || []}
-          typeField="funnel_type" generatePath={`/funnels?client=${client.id}`} />
+          typeField="funnel_type" generatePath={`/funnels?client=${client.id}`}
+          agentLabel="Conversion Designer" clientName={client.company_name} />
 
         <OutputSection title="Creative Briefs" count={creativeBriefs?.length || 0} items={creativeBriefs || []}
-          typeField="brief_type" generatePath={`/designer?client=${client.id}`} />
+          typeField="brief_type" generatePath={`/designer?client=${client.id}`}
+          agentLabel="Graphic Designer" clientName={client.company_name} />
 
         <OutputSection title="Project Plans" count={projectTasks?.length || 0} items={projectTasks || []}
-          typeField="agent_type" generatePath={`/project-manager?client=${client.id}`} />
+          typeField="agent_type" generatePath={`/project-manager?client=${client.id}`}
+          agentLabel="Project Manager" clientName={client.company_name} />
       </div>
     </AppLayout>
   );
