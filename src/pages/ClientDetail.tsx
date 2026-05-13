@@ -41,16 +41,39 @@ function InfoItem({ icon, label, value, full }: InfoItemProps) {
   );
 }
 
-function OutputCard({ item, typeField, typeLabel }: { item: any; typeField?: string; typeLabel?: string }) {
+function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; typeField?: string; agentLabel: string; clientName?: string }) {
   const [expanded, setExpanded] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const body = item.content || item.description || "";
+  const typeVal = typeField && item[typeField] ? String(item[typeField]).replace(/_/g, " ") : undefined;
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDownloading(true);
+    try {
+      await downloadOutputPdf({
+        title: item.title,
+        subtitle: clientName,
+        agentLabel,
+        meta: {
+          Type: typeVal,
+          Platform: item.platform,
+          Status: item.status,
+          Created: new Date(item.created_at).toLocaleDateString(),
+        },
+        content: body,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="rounded-md border border-border bg-background p-4 space-y-2">
       <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
         <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
         <div className="flex items-center gap-2">
-          {typeField && item[typeField] && (
-            <span className="text-xs text-muted-foreground font-mono">{String(item[typeField]).replace(/_/g, " ")}</span>
-          )}
+          {typeVal && <span className="text-xs text-muted-foreground font-mono">{typeVal}</span>}
           {item.platform && <span className="text-xs text-dim">· {item.platform}</span>}
           <span className={cn(
             "status-badge text-xs",
@@ -58,16 +81,19 @@ function OutputCard({ item, typeField, typeLabel }: { item: any; typeField?: str
           )}>
             {item.status}
           </span>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDownload} disabled={downloading} title="Download PDF">
+            <Download className="h-3.5 w-3.5" />
+          </Button>
         </div>
       </div>
       {!expanded && (
         <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap">
-          {(item.content || item.description || "").slice(0, 200)}...
+          {body.slice(0, 200)}...
         </p>
       )}
       {expanded && (
         <div className="prose prose-invert prose-sm max-w-none mt-2">
-          <ReactMarkdown>{item.content || item.description || ""}</ReactMarkdown>
+          <ReactMarkdown>{body}</ReactMarkdown>
         </div>
       )}
       <p className="text-xs text-dim">{new Date(item.created_at).toLocaleDateString()}</p>
