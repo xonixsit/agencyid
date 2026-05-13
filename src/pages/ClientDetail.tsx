@@ -3,10 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building2, Globe, Mail, User, Target, Megaphone, Palette, Trophy, Users, DollarSign, FileText, Sparkles, Zap, BarChart3, ListChecks } from "lucide-react";
+import { ArrowLeft, Building2, Globe, Mail, User, Target, Megaphone, Palette, Trophy, Users, DollarSign, FileText, Sparkles, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { downloadOutputPdf } from "@/lib/pdf-export";
 
 const statusColor = (s: string) =>
   s === "active" ? "bg-status-active/10 text-status-active" :
