@@ -28,9 +28,11 @@ const STATUS_ICONS: Record<string, typeof CheckCircle2> = {
 
 export default function ProjectManager() {
   const [selectedClientId, setSelectedClientId] = useState("");
+  const [context, setContext] = useState("");
   const [generatedPlan, setGeneratedPlan] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { suggest, loading: suggesting } = useSuggestContext();
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
