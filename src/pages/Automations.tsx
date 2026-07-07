@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const AUTOMATION_TYPES = [
