@@ -11,7 +11,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { client, existing_outputs } = await req.json();
+    const { client, existing_outputs, additional_context } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -52,7 +52,8 @@ Be specific, actionable, and production-ready. Every task should be assignable t
       ? `\n\nExisting deliverables:\n${JSON.stringify(existing_outputs, null, 2)}`
       : "\n\nNo deliverables generated yet.";
 
-    const userPrompt = `Create a full project plan for this client:\n\nCompany: ${client.company_name}\nIndustry: ${client.industry || "Not specified"}\nOffer: ${client.offer || "Not specified"}\nTarget Audience: ${client.target_audience || "Not specified"}\nGoals: ${client.goals || "Not specified"}\nBudget: ${client.budget || "Not specified"}\nBrand Voice: ${client.brand_voice || "Not specified"}${outputSummary}`;
+    const contextBlock = additional_context ? `\n\nAdditional Context from PM:\n${additional_context}` : "";
+    const userPrompt = `Create a full project plan for this client:\n\nCompany: ${client.company_name}\nIndustry: ${client.industry || "Not specified"}\nOffer: ${client.offer || "Not specified"}\nTarget Audience: ${client.target_audience || "Not specified"}\nGoals: ${client.goals || "Not specified"}\nBudget: ${client.budget || "Not specified"}\nBrand Voice: ${client.brand_voice || "Not specified"}${outputSummary}${contextBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

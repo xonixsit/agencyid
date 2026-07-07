@@ -3,9 +3,10 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PenTool, Loader2, ChevronDown, Copy, Check, Brain } from "lucide-react";
+import { PenTool, Loader2, ChevronDown, Copy, Check, Brain, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const copyTypes = [
@@ -36,6 +37,21 @@ export default function Copywriter() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { suggest, loading: suggesting } = useSuggestContext();
+
+  const handleSuggestContext = async () => {
+    try {
+      const client = clients?.find((c) => c.id === selectedClientId);
+      if (!client) throw new Error("Select a client first");
+      const text = await suggest({
+        client, agent: "copywriter", subtype: copyType, platform,
+        strategy_context: latestStrategy?.content || null, includePriorOutputs: true,
+      });
+      setAdditionalContext(text);
+    } catch (e: any) {
+      toast({ title: "Suggestion failed", description: e.message, variant: "destructive" });
+    }
+  };
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
@@ -152,7 +168,13 @@ export default function Copywriter() {
           </div>
 
           <div>
-            <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">Additional Context</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground">Additional Context</label>
+              <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Suggest with AI
+              </Button>
+            </div>
             <textarea
               className="terminal-input w-full min-h-[80px] resize-y"
               placeholder="Any specific angles, promotions, or constraints..."

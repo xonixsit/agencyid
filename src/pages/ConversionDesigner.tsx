@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { BarChart3, Loader2, Save, Layout, Brain } from "lucide-react";
+import { BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const FUNNEL_TYPES = [
@@ -45,6 +46,21 @@ export default function ConversionDesigner() {
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { suggest, loading: suggesting } = useSuggestContext();
+
+  const handleSuggestContext = async () => {
+    try {
+      if (!selectedClient) throw new Error("Select a client first");
+      const text = await suggest({
+        client: selectedClient, agent: "conversion_designer", subtype: funnelType,
+        strategy_context: latestStrategy?.content || null, includePriorOutputs: true,
+      });
+      setContext(text);
+    } catch (e: any) {
+      toast.error(e.message || "Suggestion failed");
+    }
+  };
+
 
   const generateMutation = useMutation({
     mutationFn: async () => {
@@ -135,7 +151,13 @@ export default function ConversionDesigner() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block">Additional Context (optional)</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground block">Additional Context (optional)</label>
+                <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                  {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                  Suggest with AI
+                </Button>
+              </div>
               <Textarea
                 placeholder="Specific requirements, existing brand assets, preferred colors, etc."
                 value={context}

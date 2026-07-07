@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Zap, Loader2, Save, ChevronDown, Brain } from "lucide-react";
+import { Zap, Loader2, Save, ChevronDown, Brain, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const AUTOMATION_TYPES = [
@@ -47,6 +48,21 @@ export default function Automations() {
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { suggest, loading: suggesting } = useSuggestContext();
+
+  const handleSuggestContext = async () => {
+    try {
+      if (!selectedClient) throw new Error("Select a client first");
+      const text = await suggest({
+        client: selectedClient, agent: "automation_builder", subtype: automationType,
+        strategy_context: latestStrategy?.content || null, includePriorOutputs: true,
+      });
+      setContext(text);
+    } catch (e: any) {
+      toast.error(e.message || "Suggestion failed");
+    }
+  };
+
 
   const generateMutation = useMutation({
     mutationFn: async () => {
@@ -116,8 +132,14 @@ export default function Automations() {
             <SelectField label="Automation Type" value={automationType} onChange={setAutomationType} options={AUTOMATION_TYPES} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Additional Context (optional)</label>
-            <Textarea value={context} onChange={(e) => setContext(e.target.value)} placeholder="e.g. Focus on SMS-heavy nurture, 7-day sequence, webinar funnel..." className="bg-background border-border text-sm" rows={2} />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-muted-foreground">Additional Context (optional)</label>
+              <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Suggest with AI
+              </Button>
+            </div>
+            <Textarea value={context} onChange={(e) => setContext(e.target.value)} placeholder="e.g. Focus on SMS-heavy nurture, 7-day sequence, webinar funnel..." className="bg-background border-border text-sm" rows={3} />
           </div>
           {selectedClientId && latestStrategy && (
             <div className="flex items-center gap-2 text-xs text-primary mb-2">

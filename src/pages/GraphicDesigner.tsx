@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
-import { Loader2, Copy, Save, Palette, ChevronDown, Brain } from "lucide-react";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
+import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles } from "lucide-react";
 
 const BRIEF_TYPES = [
   { value: "ad_creative", label: "Ad Creative Brief" },
@@ -36,6 +37,21 @@ export default function GraphicDesigner() {
   const [generatedBrief, setGeneratedBrief] = useState("");
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { suggest, loading: suggesting } = useSuggestContext();
+
+  const handleSuggestContext = async () => {
+    try {
+      const client = (await supabase.from("clients").select("*").eq("id", selectedClientId).maybeSingle()).data;
+      if (!client) throw new Error("Select a client first");
+      const text = await suggest({
+        client, agent: "graphic_designer", subtype: briefType, platform,
+        strategy_context: latestStrategy?.content || null, includePriorOutputs: true,
+      });
+      setContext(text);
+    } catch (e: any) {
+      toast({ title: "Suggestion failed", description: e.message, variant: "destructive" });
+    }
+  };
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
@@ -136,9 +152,15 @@ export default function GraphicDesigner() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Additional Direction</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-medium text-muted-foreground block">Additional Direction</label>
+              <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Suggest with AI
+              </Button>
+            </div>
             <Textarea value={context} onChange={(e) => setContext(e.target.value)}
-              placeholder="Specific visual references, colour preferences, style notes…" className="h-20 bg-muted/30 border-border" />
+              placeholder="Specific visual references, colour preferences, style notes…" className="h-24 bg-muted/30 border-border" />
           </div>
 
           {selectedClientId && latestStrategy && (

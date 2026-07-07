@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ListChecks, Plus, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Loader2, ListChecks, Plus, CheckCircle2, Clock, AlertCircle, Sparkles } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -26,9 +28,11 @@ const STATUS_ICONS: Record<string, typeof CheckCircle2> = {
 
 export default function ProjectManager() {
   const [selectedClientId, setSelectedClientId] = useState("");
+  const [context, setContext] = useState("");
   const [generatedPlan, setGeneratedPlan] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { suggest, loading: suggesting } = useSuggestContext();
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
@@ -75,7 +79,7 @@ export default function ProjectManager() {
       };
 
       const { data, error } = await supabase.functions.invoke("project-manager-agent", {
-        body: { client, existing_outputs },
+        body: { client, existing_outputs, additional_context: context },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
@@ -151,6 +155,30 @@ export default function ProjectManager() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-muted-foreground block">Additional Context (optional)</label>
+                <Button type="button" variant="ghost" size="sm" disabled={!selectedClientId || suggesting}
+                  onClick={async () => {
+                    try {
+                      const client = clients?.find((c) => c.id === selectedClientId);
+                      if (!client) throw new Error("Select a client first");
+                      const text = await suggest({ client, agent: "project_manager", includePriorOutputs: true });
+                      setContext(text);
+                    } catch (e: any) {
+                      toast({ title: "Suggestion failed", description: e.message, variant: "destructive" });
+                    }
+                  }}
+                  className="h-7 px-2 text-xs">
+                  {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                  Suggest with AI
+                </Button>
+              </div>
+              <Textarea value={context} onChange={(e) => setContext(e.target.value)}
+                placeholder="Timeline pressure, priority milestones, dependencies, risks..." rows={3} className="bg-background border-input" />
+            </div>
+
 
             <div className="flex gap-2">
               <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}>
