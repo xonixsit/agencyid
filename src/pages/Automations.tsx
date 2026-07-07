@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Zap, Loader2, Save, ChevronDown, Brain } from "lucide-react";
+import { Zap, Loader2, Save, ChevronDown, Brain, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
