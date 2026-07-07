@@ -151,7 +151,13 @@ export default function ConversionDesigner() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block">Additional Context (optional)</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground block">Additional Context (optional)</label>
+                <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                  {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                  Suggest with AI
+                </Button>
+              </div>
               <Textarea
                 placeholder="Specific requirements, existing brand assets, preferred colors, etc."
                 value={context}
