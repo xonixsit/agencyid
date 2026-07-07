@@ -132,8 +132,14 @@ export default function Automations() {
             <SelectField label="Automation Type" value={automationType} onChange={setAutomationType} options={AUTOMATION_TYPES} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Additional Context (optional)</label>
-            <Textarea value={context} onChange={(e) => setContext(e.target.value)} placeholder="e.g. Focus on SMS-heavy nurture, 7-day sequence, webinar funnel..." className="bg-background border-border text-sm" rows={2} />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-muted-foreground">Additional Context (optional)</label>
+              <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Suggest with AI
+              </Button>
+            </div>
+            <Textarea value={context} onChange={(e) => setContext(e.target.value)} placeholder="e.g. Focus on SMS-heavy nurture, 7-day sequence, webinar funnel..." className="bg-background border-border text-sm" rows={3} />
           </div>
           {selectedClientId && latestStrategy && (
             <div className="flex items-center gap-2 text-xs text-primary mb-2">
