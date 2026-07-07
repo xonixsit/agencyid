@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ListChecks, Plus, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Loader2, ListChecks, Plus, CheckCircle2, Clock, AlertCircle, Sparkles } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const PRIORITY_COLORS: Record<string, string> = {
