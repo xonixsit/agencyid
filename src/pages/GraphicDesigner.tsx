@@ -152,9 +152,15 @@ export default function GraphicDesigner() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Additional Direction</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-medium text-muted-foreground block">Additional Direction</label>
+              <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Suggest with AI
+              </Button>
+            </div>
             <Textarea value={context} onChange={(e) => setContext(e.target.value)}
-              placeholder="Specific visual references, colour preferences, style notes…" className="h-20 bg-muted/30 border-border" />
+              placeholder="Specific visual references, colour preferences, style notes…" className="h-24 bg-muted/30 border-border" />
           </div>
 
           {selectedClientId && latestStrategy && (
