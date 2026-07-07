@@ -48,6 +48,21 @@ export default function Automations() {
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { suggest, loading: suggesting } = useSuggestContext();
+
+  const handleSuggestContext = async () => {
+    try {
+      if (!selectedClient) throw new Error("Select a client first");
+      const text = await suggest({
+        client: selectedClient, agent: "automation_builder", subtype: automationType,
+        strategy_context: latestStrategy?.content || null, includePriorOutputs: true,
+      });
+      setContext(text);
+    } catch (e: any) {
+      toast.error(e.message || "Suggestion failed");
+    }
+  };
+
 
   const generateMutation = useMutation({
     mutationFn: async () => {
