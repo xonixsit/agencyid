@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { BarChart3, Loader2, Save, Layout, Brain } from "lucide-react";
+import { BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const FUNNEL_TYPES = [
