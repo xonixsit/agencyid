@@ -3,9 +3,10 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PenTool, Loader2, ChevronDown, Copy, Check, Brain } from "lucide-react";
+import { PenTool, Loader2, ChevronDown, Copy, Check, Brain, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
 import ReactMarkdown from "react-markdown";
 
 const copyTypes = [
