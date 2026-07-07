@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
-import { Loader2, Copy, Save, Palette, ChevronDown, Brain } from "lucide-react";
+import { useSuggestContext } from "@/hooks/use-suggest-context";
+import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles } from "lucide-react";
 
 const BRIEF_TYPES = [
   { value: "ad_creative", label: "Ad Creative Brief" },
