@@ -156,6 +156,30 @@ export default function ProjectManager() {
               </Select>
             </div>
 
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-muted-foreground block">Additional Context (optional)</label>
+                <Button type="button" variant="ghost" size="sm" disabled={!selectedClientId || suggesting}
+                  onClick={async () => {
+                    try {
+                      const client = clients?.find((c) => c.id === selectedClientId);
+                      if (!client) throw new Error("Select a client first");
+                      const text = await suggest({ client, agent: "project_manager", includePriorOutputs: true });
+                      setContext(text);
+                    } catch (e: any) {
+                      toast({ title: "Suggestion failed", description: e.message, variant: "destructive" });
+                    }
+                  }}
+                  className="h-7 px-2 text-xs">
+                  {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                  Suggest with AI
+                </Button>
+              </div>
+              <Textarea value={context} onChange={(e) => setContext(e.target.value)}
+                placeholder="Timeline pressure, priority milestones, dependencies, risks..." rows={3} className="bg-background border-input" />
+            </div>
+
+
             <div className="flex gap-2">
               <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}>
                 {generateMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generating...</> : <><ListChecks className="h-4 w-4 mr-2" />Generate Plan</>}
