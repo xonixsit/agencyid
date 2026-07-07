@@ -37,6 +37,21 @@ export default function GraphicDesigner() {
   const [generatedBrief, setGeneratedBrief] = useState("");
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { suggest, loading: suggesting } = useSuggestContext();
+
+  const handleSuggestContext = async () => {
+    try {
+      const client = (await supabase.from("clients").select("*").eq("id", selectedClientId).maybeSingle()).data;
+      if (!client) throw new Error("Select a client first");
+      const text = await suggest({
+        client, agent: "graphic_designer", subtype: briefType, platform,
+        strategy_context: latestStrategy?.content || null, includePriorOutputs: true,
+      });
+      setContext(text);
+    } catch (e: any) {
+      toast({ title: "Suggestion failed", description: e.message, variant: "destructive" });
+    }
+  };
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
