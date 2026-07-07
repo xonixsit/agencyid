@@ -37,6 +37,21 @@ export default function Copywriter() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { suggest, loading: suggesting } = useSuggestContext();
+
+  const handleSuggestContext = async () => {
+    try {
+      const client = clients?.find((c) => c.id === selectedClientId);
+      if (!client) throw new Error("Select a client first");
+      const text = await suggest({
+        client, agent: "copywriter", subtype: copyType, platform,
+        strategy_context: latestStrategy?.content || null, includePriorOutputs: true,
+      });
+      setAdditionalContext(text);
+    } catch (e: any) {
+      toast({ title: "Suggestion failed", description: e.message, variant: "destructive" });
+    }
+  };
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
