@@ -11,7 +11,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { client, existing_outputs } = await req.json();
+    const { client, existing_outputs, additional_context } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
