@@ -168,7 +168,13 @@ export default function Copywriter() {
           </div>
 
           <div>
-            <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">Additional Context</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground">Additional Context</label>
+              <Button type="button" variant="ghost" size="sm" onClick={handleSuggestContext} disabled={!selectedClientId || suggesting} className="h-7 px-2 text-xs">
+                {suggesting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Suggest with AI
+              </Button>
+            </div>
             <textarea
               className="terminal-input w-full min-h-[80px] resize-y"
               placeholder="Any specific angles, promotions, or constraints..."
