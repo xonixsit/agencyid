@@ -339,7 +339,7 @@ export default function GraphicDesigner() {
   );
 }
 
-function SavedBriefCard({ brief, onLoad }: { brief: any; onLoad: (c: string) => void }) {
+function SavedBriefCard({ brief, onLoad }: { brief: any; onLoad: (c: string, id: string) => void }) {
   const [open, setOpen] = useState(false);
   return (
     <Card className="p-3 bg-card border-border">
