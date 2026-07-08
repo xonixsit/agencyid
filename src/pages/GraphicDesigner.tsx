@@ -270,12 +270,66 @@ export default function GraphicDesigner() {
           </Card>
         )}
 
+        {generatedBrief && (
+          <Card className="p-5 space-y-4 bg-card border-border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Generate Visuals from Brief</h2>
+                <p className="text-xs text-muted-foreground mt-1">Turn this creative brief into ready-to-post ad/social images.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <SelectField label="Aspect Ratio" value={aspectRatio} onChange={setAspectRatio} options={ASPECT_RATIOS} />
+              <SelectField label="Variations" value={String(variations)} onChange={(v) => setVariations(Number(v))}
+                options={[{ value: "1", label: "1" }, { value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }]} />
+              <div className="flex items-end">
+                <Button onClick={() => visualsMutation.mutate()} disabled={visualsMutation.isPending || !selectedClientId}
+                  className="w-full">
+                  {visualsMutation.isPending
+                    ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Generating…</>
+                    : <><ImageIcon className="mr-2 h-4 w-4" />Generate Visuals</>}
+                </Button>
+              </div>
+            </div>
+            <Textarea value={visualExtra} onChange={(e) => setVisualExtra(e.target.value)}
+              placeholder="Optional extra visual direction (e.g. 'focus on lifestyle shot with product overlay, add 20% off badge')"
+              className="h-20 bg-muted/30 border-border" />
+          </Card>
+        )}
+
+        {savedVisuals && savedVisuals.length > 0 && (
+          <div>
+            <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">Generated Visuals</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {savedVisuals.map((v) => (
+                <Card key={v.id} className="overflow-hidden bg-card border-border group">
+                  <div className="aspect-square bg-muted/20 flex items-center justify-center">
+                    <img src={v.image_url} alt={v.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-2 space-y-1">
+                    <p className="text-xs font-medium text-foreground truncate">{v.variation_label || "Variation"}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{v.aspect_ratio} · {v.platform || "any"}</p>
+                    <div className="flex gap-1 pt-1">
+                      <Button size="sm" variant="outline" className="flex-1 h-7 text-xs" onClick={() => downloadVisual(v.image_url, v.title)}>
+                        <Download className="h-3 w-3 mr-1" />PNG
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => deleteVisual(v.id)}>
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {savedBriefs && savedBriefs.length > 0 && (
           <div>
             <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">Saved Briefs</h2>
             <div className="space-y-2">
               {savedBriefs.map((b) => (
-                <SavedBriefCard key={b.id} brief={b} onLoad={(content) => setGeneratedBrief(content)} />
+                <SavedBriefCard key={b.id} brief={b} onLoad={(content, id) => { setGeneratedBrief(content); setCurrentBriefId(id); }} />
               ))}
             </div>
           </div>
