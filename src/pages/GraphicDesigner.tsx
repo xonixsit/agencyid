@@ -349,7 +349,7 @@ function SavedBriefCard({ brief, onLoad }: { brief: any; onLoad: (c: string, id:
           <p className="text-xs text-muted-foreground">{brief.brief_type?.replace(/_/g, " ")} · {new Date(brief.created_at).toLocaleDateString()}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onLoad(brief.content); }}>Load</Button>
+          <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onLoad(brief.content, brief.id); }}>Load</Button>
           <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
         </div>
       </div>
