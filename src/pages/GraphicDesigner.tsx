@@ -100,17 +100,18 @@ export default function GraphicDesigner() {
     onSuccess: async (brief) => {
       setGeneratedBrief(brief);
       const client = clients?.find((c) => c.id === selectedClientId);
-      const { error } = await supabase.from("creative_briefs" as any).insert({
+      const { data: inserted, error } = await supabase.from("creative_briefs" as any).insert({
         client_id: selectedClientId,
         title: `${BRIEF_TYPES.find((b) => b.value === briefType)?.label} — ${client?.company_name}`,
         content: brief,
         brief_type: briefType,
         platform: platform || null,
         visual_direction: context || null,
-      });
+      }).select().maybeSingle();
       if (error) {
         toast({ title: "Generated but failed to save", description: error.message, variant: "destructive" });
       } else {
+        setCurrentBriefId((inserted as any)?.id || null);
         toast({ title: "Creative brief generated & saved" });
         queryClient.invalidateQueries({ queryKey: ["creative_briefs"] });
       }
@@ -122,15 +123,16 @@ export default function GraphicDesigner() {
     mutationFn: async () => {
       if (!generatedBrief || !selectedClientId) throw new Error("Nothing to save");
       const client = clients?.find((c) => c.id === selectedClientId);
-      const { error } = await supabase.from("creative_briefs" as any).insert({
+      const { data: inserted, error } = await supabase.from("creative_briefs" as any).insert({
         client_id: selectedClientId,
         title: `${BRIEF_TYPES.find((b) => b.value === briefType)?.label} — ${client?.company_name}`,
         content: generatedBrief,
         brief_type: briefType,
         platform: platform || null,
         visual_direction: context || null,
-      });
+      }).select().maybeSingle();
       if (error) throw error;
+      setCurrentBriefId((inserted as any)?.id || null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["creative_briefs"] });
@@ -138,6 +140,70 @@ export default function GraphicDesigner() {
     },
     onError: (e: Error) => toast({ title: "Save failed", description: e.message, variant: "destructive" }),
   });
+
+  const { data: savedVisuals } = useQuery({
+    queryKey: ["generated_visuals", selectedClientId],
+    queryFn: async () => {
+      if (!selectedClientId) return [];
+      const { data, error } = await supabase
+        .from("generated_visuals" as any)
+        .select("*")
+        .eq("client_id", selectedClientId)
+        .order("created_at", { ascending: false })
+        .limit(24);
+      if (error) throw error;
+      return data as any[];
+    },
+    enabled: !!selectedClientId,
+  });
+
+  const visualsMutation = useMutation({
+    mutationFn: async () => {
+      const client = clients?.find((c) => c.id === selectedClientId);
+      if (!client) throw new Error("Select a client");
+      if (!generatedBrief) throw new Error("Generate a creative brief first");
+      const { data, error } = await supabase.functions.invoke("graphic-designer-image", {
+        body: {
+          client, brief: generatedBrief, platform,
+          variations, aspect_ratio: aspectRatio, extra: visualExtra,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const visuals = (data as any).visuals as { label: string; prompt: string; image_url: string }[];
+      const rows = visuals.map((v) => ({
+        client_id: selectedClientId,
+        brief_id: currentBriefId,
+        title: `${client.company_name} · ${v.label}`,
+        prompt: v.prompt,
+        image_url: v.image_url,
+        platform: platform || null,
+        aspect_ratio: aspectRatio,
+        variation_label: v.label,
+      }));
+      const { error: insErr } = await supabase.from("generated_visuals" as any).insert(rows);
+      if (insErr) throw insErr;
+      return visuals.length;
+    },
+    onSuccess: (n) => {
+      toast({ title: `Generated ${n} visual${n === 1 ? "" : "s"}` });
+      queryClient.invalidateQueries({ queryKey: ["generated_visuals", selectedClientId] });
+    },
+    onError: (e: Error) => toast({ title: "Visual generation failed", description: e.message, variant: "destructive" }),
+  });
+
+  const deleteVisual = async (id: string) => {
+    const { error } = await supabase.from("generated_visuals" as any).delete().eq("id", id);
+    if (error) return toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    queryClient.invalidateQueries({ queryKey: ["generated_visuals", selectedClientId] });
+  };
+
+  const downloadVisual = (url: string, name: string) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.replace(/\s+/g, "_")}.png`;
+    a.click();
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedBrief);
