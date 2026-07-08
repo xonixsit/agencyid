@@ -9,7 +9,14 @@ import { toast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
-import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles } from "lucide-react";
+import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles, ImageIcon, Download, Trash2 } from "lucide-react";
+
+const ASPECT_RATIOS = [
+  { value: "1:1", label: "Square 1:1" },
+  { value: "4:5", label: "Portrait 4:5" },
+  { value: "9:16", label: "Story/Reel 9:16" },
+  { value: "16:9", label: "Landscape 16:9" },
+];
 
 const BRIEF_TYPES = [
   { value: "ad_creative", label: "Ad Creative Brief" },
