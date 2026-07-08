@@ -326,6 +326,63 @@ export type Database = {
           },
         ]
       }
+      generated_visuals: {
+        Row: {
+          aspect_ratio: string | null
+          brief_id: string | null
+          client_id: string
+          created_at: string
+          id: string
+          image_url: string
+          platform: string | null
+          prompt: string
+          title: string
+          updated_at: string
+          variation_label: string | null
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          brief_id?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          image_url: string
+          platform?: string | null
+          prompt: string
+          title: string
+          updated_at?: string
+          variation_label?: string | null
+        }
+        Update: {
+          aspect_ratio?: string | null
+          brief_id?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          platform?: string | null
+          prompt?: string
+          title?: string
+          updated_at?: string
+          variation_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_visuals_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "creative_briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_visuals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_plans: {
         Row: {
           ad_placements: Json | null

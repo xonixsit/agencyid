@@ -9,7 +9,14 @@ import { toast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
-import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles } from "lucide-react";
+import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles, ImageIcon, Download, Trash2 } from "lucide-react";
+
+const ASPECT_RATIOS = [
+  { value: "1:1", label: "Square 1:1" },
+  { value: "4:5", label: "Portrait 4:5" },
+  { value: "9:16", label: "Story/Reel 9:16" },
+  { value: "16:9", label: "Landscape 16:9" },
+];
 
 const BRIEF_TYPES = [
   { value: "ad_creative", label: "Ad Creative Brief" },
@@ -35,6 +42,10 @@ export default function GraphicDesigner() {
   const [platform, setPlatform] = useState("");
   const [context, setContext] = useState("");
   const [generatedBrief, setGeneratedBrief] = useState("");
+  const [currentBriefId, setCurrentBriefId] = useState<string | null>(null);
+  const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [variations, setVariations] = useState(3);
+  const [visualExtra, setVisualExtra] = useState("");
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
@@ -89,17 +100,18 @@ export default function GraphicDesigner() {
     onSuccess: async (brief) => {
       setGeneratedBrief(brief);
       const client = clients?.find((c) => c.id === selectedClientId);
-      const { error } = await supabase.from("creative_briefs" as any).insert({
+      const { data: inserted, error } = await supabase.from("creative_briefs" as any).insert({
         client_id: selectedClientId,
         title: `${BRIEF_TYPES.find((b) => b.value === briefType)?.label} — ${client?.company_name}`,
         content: brief,
         brief_type: briefType,
         platform: platform || null,
         visual_direction: context || null,
-      });
+      }).select().maybeSingle();
       if (error) {
         toast({ title: "Generated but failed to save", description: error.message, variant: "destructive" });
       } else {
+        setCurrentBriefId((inserted as any)?.id || null);
         toast({ title: "Creative brief generated & saved" });
         queryClient.invalidateQueries({ queryKey: ["creative_briefs"] });
       }
@@ -111,15 +123,16 @@ export default function GraphicDesigner() {
     mutationFn: async () => {
       if (!generatedBrief || !selectedClientId) throw new Error("Nothing to save");
       const client = clients?.find((c) => c.id === selectedClientId);
-      const { error } = await supabase.from("creative_briefs" as any).insert({
+      const { data: inserted, error } = await supabase.from("creative_briefs" as any).insert({
         client_id: selectedClientId,
         title: `${BRIEF_TYPES.find((b) => b.value === briefType)?.label} — ${client?.company_name}`,
         content: generatedBrief,
         brief_type: briefType,
         platform: platform || null,
         visual_direction: context || null,
-      });
+      }).select().maybeSingle();
       if (error) throw error;
+      setCurrentBriefId((inserted as any)?.id || null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["creative_briefs"] });
@@ -127,6 +140,70 @@ export default function GraphicDesigner() {
     },
     onError: (e: Error) => toast({ title: "Save failed", description: e.message, variant: "destructive" }),
   });
+
+  const { data: savedVisuals } = useQuery({
+    queryKey: ["generated_visuals", selectedClientId],
+    queryFn: async () => {
+      if (!selectedClientId) return [];
+      const { data, error } = await supabase
+        .from("generated_visuals" as any)
+        .select("*")
+        .eq("client_id", selectedClientId)
+        .order("created_at", { ascending: false })
+        .limit(24);
+      if (error) throw error;
+      return data as any[];
+    },
+    enabled: !!selectedClientId,
+  });
+
+  const visualsMutation = useMutation({
+    mutationFn: async () => {
+      const client = clients?.find((c) => c.id === selectedClientId);
+      if (!client) throw new Error("Select a client");
+      if (!generatedBrief) throw new Error("Generate a creative brief first");
+      const { data, error } = await supabase.functions.invoke("graphic-designer-image", {
+        body: {
+          client, brief: generatedBrief, platform,
+          variations, aspect_ratio: aspectRatio, extra: visualExtra,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const visuals = (data as any).visuals as { label: string; prompt: string; image_url: string }[];
+      const rows = visuals.map((v) => ({
+        client_id: selectedClientId,
+        brief_id: currentBriefId,
+        title: `${client.company_name} · ${v.label}`,
+        prompt: v.prompt,
+        image_url: v.image_url,
+        platform: platform || null,
+        aspect_ratio: aspectRatio,
+        variation_label: v.label,
+      }));
+      const { error: insErr } = await supabase.from("generated_visuals" as any).insert(rows);
+      if (insErr) throw insErr;
+      return visuals.length;
+    },
+    onSuccess: (n) => {
+      toast({ title: `Generated ${n} visual${n === 1 ? "" : "s"}` });
+      queryClient.invalidateQueries({ queryKey: ["generated_visuals", selectedClientId] });
+    },
+    onError: (e: Error) => toast({ title: "Visual generation failed", description: e.message, variant: "destructive" }),
+  });
+
+  const deleteVisual = async (id: string) => {
+    const { error } = await supabase.from("generated_visuals" as any).delete().eq("id", id);
+    if (error) return toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    queryClient.invalidateQueries({ queryKey: ["generated_visuals", selectedClientId] });
+  };
+
+  const downloadVisual = (url: string, name: string) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.replace(/\s+/g, "_")}.png`;
+    a.click();
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedBrief);
@@ -193,12 +270,66 @@ export default function GraphicDesigner() {
           </Card>
         )}
 
+        {generatedBrief && (
+          <Card className="p-5 space-y-4 bg-card border-border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Generate Visuals from Brief</h2>
+                <p className="text-xs text-muted-foreground mt-1">Turn this creative brief into ready-to-post ad/social images.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <SelectField label="Aspect Ratio" value={aspectRatio} onChange={setAspectRatio} options={ASPECT_RATIOS} />
+              <SelectField label="Variations" value={String(variations)} onChange={(v) => setVariations(Number(v))}
+                options={[{ value: "1", label: "1" }, { value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }]} />
+              <div className="flex items-end">
+                <Button onClick={() => visualsMutation.mutate()} disabled={visualsMutation.isPending || !selectedClientId}
+                  className="w-full">
+                  {visualsMutation.isPending
+                    ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Generating…</>
+                    : <><ImageIcon className="mr-2 h-4 w-4" />Generate Visuals</>}
+                </Button>
+              </div>
+            </div>
+            <Textarea value={visualExtra} onChange={(e) => setVisualExtra(e.target.value)}
+              placeholder="Optional extra visual direction (e.g. 'focus on lifestyle shot with product overlay, add 20% off badge')"
+              className="h-20 bg-muted/30 border-border" />
+          </Card>
+        )}
+
+        {savedVisuals && savedVisuals.length > 0 && (
+          <div>
+            <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">Generated Visuals</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {savedVisuals.map((v) => (
+                <Card key={v.id} className="overflow-hidden bg-card border-border group">
+                  <div className="aspect-square bg-muted/20 flex items-center justify-center">
+                    <img src={v.image_url} alt={v.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-2 space-y-1">
+                    <p className="text-xs font-medium text-foreground truncate">{v.variation_label || "Variation"}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{v.aspect_ratio} · {v.platform || "any"}</p>
+                    <div className="flex gap-1 pt-1">
+                      <Button size="sm" variant="outline" className="flex-1 h-7 text-xs" onClick={() => downloadVisual(v.image_url, v.title)}>
+                        <Download className="h-3 w-3 mr-1" />PNG
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => deleteVisual(v.id)}>
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {savedBriefs && savedBriefs.length > 0 && (
           <div>
             <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">Saved Briefs</h2>
             <div className="space-y-2">
               {savedBriefs.map((b) => (
-                <SavedBriefCard key={b.id} brief={b} onLoad={(content) => setGeneratedBrief(content)} />
+                <SavedBriefCard key={b.id} brief={b} onLoad={(content, id) => { setGeneratedBrief(content); setCurrentBriefId(id); }} />
               ))}
             </div>
           </div>
@@ -208,7 +339,7 @@ export default function GraphicDesigner() {
   );
 }
 
-function SavedBriefCard({ brief, onLoad }: { brief: any; onLoad: (c: string) => void }) {
+function SavedBriefCard({ brief, onLoad }: { brief: any; onLoad: (c: string, id: string) => void }) {
   const [open, setOpen] = useState(false);
   return (
     <Card className="p-3 bg-card border-border">
@@ -218,7 +349,7 @@ function SavedBriefCard({ brief, onLoad }: { brief: any; onLoad: (c: string) => 
           <p className="text-xs text-muted-foreground">{brief.brief_type?.replace(/_/g, " ")} · {new Date(brief.created_at).toLocaleDateString()}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onLoad(brief.content); }}>Load</Button>
+          <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onLoad(brief.content, brief.id); }}>Load</Button>
           <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
         </div>
       </div>
