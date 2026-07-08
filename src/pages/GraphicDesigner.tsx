@@ -42,6 +42,10 @@ export default function GraphicDesigner() {
   const [platform, setPlatform] = useState("");
   const [context, setContext] = useState("");
   const [generatedBrief, setGeneratedBrief] = useState("");
+  const [currentBriefId, setCurrentBriefId] = useState<string | null>(null);
+  const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [variations, setVariations] = useState(3);
+  const [visualExtra, setVisualExtra] = useState("");
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
