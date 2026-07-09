@@ -22,11 +22,15 @@ export type Database = {
           created_at: string
           ghl_template: Json | null
           id: string
+          parent_id: string | null
+          review_notes: string | null
+          review_status: string
           status: Database["public"]["Enums"]["output_status"]
           strategy_id: string | null
           title: string
           trigger_event: string | null
           updated_at: string
+          version: number
           workflow_steps: Json | null
         }
         Insert: {
@@ -36,11 +40,15 @@ export type Database = {
           created_at?: string
           ghl_template?: Json | null
           id?: string
+          parent_id?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title: string
           trigger_event?: string | null
           updated_at?: string
+          version?: number
           workflow_steps?: Json | null
         }
         Update: {
@@ -50,11 +58,15 @@ export type Database = {
           created_at?: string
           ghl_template?: Json | null
           id?: string
+          parent_id?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title?: string
           trigger_event?: string | null
           updated_at?: string
+          version?: number
           workflow_steps?: Json | null
         }
         Relationships: [
@@ -63,6 +75,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
             referencedColumns: ["id"]
           },
           {
@@ -76,6 +95,7 @@ export type Database = {
       }
       clients: {
         Row: {
+          auto_chain: boolean
           brand_voice: string | null
           budget: string | null
           company_name: string
@@ -95,6 +115,7 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          auto_chain?: boolean
           brand_voice?: string | null
           budget?: string | null
           company_name: string
@@ -114,6 +135,7 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          auto_chain?: boolean
           brand_voice?: string | null
           budget?: string | null
           company_name?: string
@@ -143,13 +165,17 @@ export type Database = {
           created_at: string
           id: string
           metadata: Json | null
+          parent_id: string | null
           platform: string | null
+          review_notes: string | null
+          review_status: string
           status: Database["public"]["Enums"]["output_status"]
           strategy_id: string | null
           target_audience: string | null
           title: string
           tone: string | null
           updated_at: string
+          version: number
         }
         Insert: {
           call_to_action?: string | null
@@ -159,13 +185,17 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
+          parent_id?: string | null
           platform?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           target_audience?: string | null
           title: string
           tone?: string | null
           updated_at?: string
+          version?: number
         }
         Update: {
           call_to_action?: string | null
@@ -175,13 +205,17 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
+          parent_id?: string | null
           platform?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           target_audience?: string | null
           title?: string
           tone?: string | null
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -189,6 +223,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "copy_outputs_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "copy_outputs"
             referencedColumns: ["id"]
           },
           {
@@ -209,11 +250,15 @@ export type Database = {
           created_at: string
           dimensions: Json | null
           id: string
+          parent_id: string | null
           platform: string | null
+          review_notes: string | null
+          review_status: string
           status: Database["public"]["Enums"]["output_status"]
           strategy_id: string | null
           title: string
           updated_at: string
+          version: number
           visual_direction: string | null
         }
         Insert: {
@@ -224,11 +269,15 @@ export type Database = {
           created_at?: string
           dimensions?: Json | null
           id?: string
+          parent_id?: string | null
           platform?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title: string
           updated_at?: string
+          version?: number
           visual_direction?: string | null
         }
         Update: {
@@ -239,11 +288,15 @@ export type Database = {
           created_at?: string
           dimensions?: Json | null
           id?: string
+          parent_id?: string | null
           platform?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title?: string
           updated_at?: string
+          version?: number
           visual_direction?: string | null
         }
         Relationships: [
@@ -252,6 +305,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creative_briefs_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "creative_briefs"
             referencedColumns: ["id"]
           },
           {
@@ -273,11 +333,15 @@ export type Database = {
           ghl_template: Json | null
           id: string
           page_count: number | null
+          parent_id: string | null
+          review_notes: string | null
+          review_status: string
           sections: Json | null
           status: Database["public"]["Enums"]["output_status"]
           strategy_id: string | null
           title: string
           updated_at: string
+          version: number
         }
         Insert: {
           client_id: string
@@ -288,11 +352,15 @@ export type Database = {
           ghl_template?: Json | null
           id?: string
           page_count?: number | null
+          parent_id?: string | null
+          review_notes?: string | null
+          review_status?: string
           sections?: Json | null
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title: string
           updated_at?: string
+          version?: number
         }
         Update: {
           client_id?: string
@@ -303,11 +371,15 @@ export type Database = {
           ghl_template?: Json | null
           id?: string
           page_count?: number | null
+          parent_id?: string | null
+          review_notes?: string | null
+          review_status?: string
           sections?: Json | null
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title?: string
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -315,6 +387,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnel_designs_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "funnel_designs"
             referencedColumns: ["id"]
           },
           {
@@ -334,11 +413,15 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
+          parent_id: string | null
           platform: string | null
           prompt: string
+          review_notes: string | null
+          review_status: string
           title: string
           updated_at: string
           variation_label: string | null
+          version: number
         }
         Insert: {
           aspect_ratio?: string | null
@@ -347,11 +430,15 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
+          parent_id?: string | null
           platform?: string | null
           prompt: string
+          review_notes?: string | null
+          review_status?: string
           title: string
           updated_at?: string
           variation_label?: string | null
+          version?: number
         }
         Update: {
           aspect_ratio?: string | null
@@ -360,11 +447,15 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
+          parent_id?: string | null
           platform?: string | null
           prompt?: string
+          review_notes?: string | null
+          review_status?: string
           title?: string
           updated_at?: string
           variation_label?: string | null
+          version?: number
         }
         Relationships: [
           {
@@ -381,6 +472,13 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "generated_visuals_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "generated_visuals"
+            referencedColumns: ["id"]
+          },
         ]
       }
       media_plans: {
@@ -394,12 +492,16 @@ export type Database = {
           created_at: string
           daily_budget: string | null
           id: string
+          parent_id: string | null
           platform: string
+          review_notes: string | null
+          review_status: string
           status: Database["public"]["Enums"]["output_status"]
           strategy_id: string | null
           title: string
           total_budget: string | null
           updated_at: string
+          version: number
         }
         Insert: {
           ad_placements?: Json | null
@@ -411,12 +513,16 @@ export type Database = {
           created_at?: string
           daily_budget?: string | null
           id?: string
+          parent_id?: string | null
           platform?: string
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title: string
           total_budget?: string | null
           updated_at?: string
+          version?: number
         }
         Update: {
           ad_placements?: Json | null
@@ -428,12 +534,16 @@ export type Database = {
           created_at?: string
           daily_budget?: string | null
           id?: string
+          parent_id?: string | null
           platform?: string
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_id?: string | null
           title?: string
           total_budget?: string | null
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -441,6 +551,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_plans_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "media_plans"
             referencedColumns: ["id"]
           },
           {
@@ -463,10 +580,14 @@ export type Database = {
           due_date: string | null
           id: string
           notes: string | null
+          parent_id: string | null
           priority: string
+          review_notes: string | null
+          review_status: string
           status: string
           title: string
           updated_at: string
+          version: number
         }
         Insert: {
           agent_type?: string
@@ -478,10 +599,14 @@ export type Database = {
           due_date?: string | null
           id?: string
           notes?: string | null
+          parent_id?: string | null
           priority?: string
+          review_notes?: string | null
+          review_status?: string
           status?: string
           title: string
           updated_at?: string
+          version?: number
         }
         Update: {
           agent_type?: string
@@ -493,12 +618,24 @@ export type Database = {
           due_date?: string | null
           id?: string
           notes?: string | null
+          parent_id?: string | null
           priority?: string
+          review_notes?: string | null
+          review_status?: string
           status?: string
           title?: string
           updated_at?: string
+          version?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "project_tasks_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "project_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       strategies: {
         Row: {
@@ -509,11 +646,15 @@ export type Database = {
           funnel_structure: Json | null
           id: string
           key_messages: string[] | null
+          parent_id: string | null
+          review_notes: string | null
+          review_status: string
           status: Database["public"]["Enums"]["output_status"]
           strategy_type: Database["public"]["Enums"]["strategy_type"]
           target_segments: Json | null
           title: string
           updated_at: string
+          version: number
         }
         Insert: {
           campaign_channels?: string[] | null
@@ -523,11 +664,15 @@ export type Database = {
           funnel_structure?: Json | null
           id?: string
           key_messages?: string[] | null
+          parent_id?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_type?: Database["public"]["Enums"]["strategy_type"]
           target_segments?: Json | null
           title: string
           updated_at?: string
+          version?: number
         }
         Update: {
           campaign_channels?: string[] | null
@@ -537,11 +682,15 @@ export type Database = {
           funnel_structure?: Json | null
           id?: string
           key_messages?: string[] | null
+          parent_id?: string | null
+          review_notes?: string | null
+          review_status?: string
           status?: Database["public"]["Enums"]["output_status"]
           strategy_type?: Database["public"]["Enums"]["strategy_type"]
           target_segments?: Json | null
           title?: string
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -549,6 +698,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategies_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
             referencedColumns: ["id"]
           },
         ]
