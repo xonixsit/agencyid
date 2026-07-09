@@ -296,33 +296,42 @@ export default function ClientDetail() {
           </div>
         </div>
 
+        <PipelineBoard clientId={client.id} />
+
         <OutputSection title="Strategies" count={strategies?.length || 0} items={strategies || []}
           typeField="strategy_type" generatePath={`/strategist?client=${client.id}`}
-          agentLabel="Strategist" clientName={client.company_name} />
+          agentLabel="Strategist" clientName={client.company_name}
+          table="strategies" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Copy Outputs" count={copyOutputs?.length || 0} items={copyOutputs || []}
           typeField="copy_type" generatePath={`/copywriter?client=${client.id}`}
-          agentLabel="Copywriter" clientName={client.company_name} />
+          agentLabel="Copywriter" clientName={client.company_name}
+          table="copy_outputs" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Media Plans" count={mediaPlans?.length || 0} items={mediaPlans || []}
           typeField="campaign_objective" generatePath={`/campaigns?client=${client.id}`}
-          agentLabel="Media Buyer" clientName={client.company_name} />
+          agentLabel="Media Buyer" clientName={client.company_name}
+          table="media_plans" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Automations" count={automations?.length || 0} items={automations || []}
           typeField="automation_type" generatePath={`/automations?client=${client.id}`}
-          agentLabel="Automation Builder" clientName={client.company_name} />
+          agentLabel="Automation Builder" clientName={client.company_name}
+          table="automations" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Funnel Designs" count={funnelDesigns?.length || 0} items={funnelDesigns || []}
-          typeField="funnel_type" generatePath={`/funnels?client=${client.id}`}
-          agentLabel="Conversion Designer" clientName={client.company_name} />
+          typeField="funnel_type" generatePath={`/conversion-designer?client=${client.id}`}
+          agentLabel="Conversion Designer" clientName={client.company_name}
+          table="funnel_designs" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Creative Briefs" count={creativeBriefs?.length || 0} items={creativeBriefs || []}
-          typeField="brief_type" generatePath={`/designer?client=${client.id}`}
-          agentLabel="Graphic Designer" clientName={client.company_name} />
+          typeField="brief_type" generatePath={`/graphic-designer?client=${client.id}`}
+          agentLabel="Graphic Designer" clientName={client.company_name}
+          table="creative_briefs" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Project Plans" count={projectTasks?.length || 0} items={projectTasks || []}
           typeField="agent_type" generatePath={`/project-manager?client=${client.id}`}
-          agentLabel="Project Manager" clientName={client.company_name} />
+          agentLabel="Project Manager" clientName={client.company_name}
+          table="project_tasks" clientId={client.id} autoChain={client.auto_chain} />
       </div>
     </AppLayout>
   );
