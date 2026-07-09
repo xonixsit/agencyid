@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { downloadOutputPdf } from "@/lib/pdf-export";
+import { PipelineBoard } from "@/components/pipeline/PipelineBoard";
+import { ReviewActions, TABLE_TO_STAGE } from "@/components/pipeline/ReviewActions";
 
 const statusColor = (s: string) =>
   s === "active" ? "bg-status-active/10 text-status-active" :
@@ -41,11 +43,13 @@ function InfoItem({ icon, label, value, full }: InfoItemProps) {
   );
 }
 
-function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; typeField?: string; agentLabel: string; clientName?: string }) {
+function OutputCard({ item, typeField, agentLabel, clientName, table, clientId, autoChain }: { item: any; typeField?: string; agentLabel: string; clientName?: string; table: string; clientId: string; autoChain?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const body = item.content || item.description || "";
+  const contentField: "content" | "description" = table === "project_tasks" ? "description" : "content";
+  const body = item[contentField] || "";
   const typeVal = typeField && item[typeField] ? String(item[typeField]).replace(/_/g, " ") : undefined;
+  const stageKey = TABLE_TO_STAGE[table];
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,7 +62,8 @@ function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; ty
         meta: {
           Type: typeVal,
           Platform: item.platform,
-          Status: item.status,
+          Status: item.review_status || item.status,
+          Version: item.version ? `v${item.version}` : undefined,
           Created: new Date(item.created_at).toLocaleDateString(),
         },
         content: body,
@@ -69,22 +74,19 @@ function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; ty
   };
 
   return (
-    <div className="rounded-md border border-border bg-background p-4 space-y-2">
-      <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
-        <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
-        <div className="flex items-center gap-2">
-          {typeVal && <span className="text-xs text-muted-foreground font-mono">{typeVal}</span>}
-          {item.platform && <span className="text-xs text-dim">· {item.platform}</span>}
-          <span className={cn(
-            "status-badge text-xs",
-            item.status === "approved" ? "bg-status-active/10 text-status-active" : "bg-muted text-muted-foreground"
-          )}>
-            {item.status}
-          </span>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDownload} disabled={downloading} title="Download PDF">
-            <Download className="h-3.5 w-3.5" />
-          </Button>
+    <div className="rounded-md border border-border bg-background p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
+          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+            {typeVal && <span className="font-mono">{typeVal}</span>}
+            {item.platform && <span>· {item.platform}</span>}
+            <span>· {new Date(item.created_at).toLocaleDateString()}</span>
+          </div>
         </div>
+        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleDownload} disabled={downloading} title="Download PDF">
+          <Download className="h-3.5 w-3.5" />
+        </Button>
       </div>
       {!expanded && (
         <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap">
@@ -96,7 +98,12 @@ function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; ty
           <ReactMarkdown>{body}</ReactMarkdown>
         </div>
       )}
-      <p className="text-xs text-dim">{new Date(item.created_at).toLocaleDateString()}</p>
+      {item.review_notes && (
+        <p className="text-xs text-yellow-400/80 border-l-2 border-yellow-500/40 pl-2">Feedback: {item.review_notes}</p>
+      )}
+      {stageKey && (
+        <ReviewActions table={table} row={item} stageKey={stageKey} contentField={contentField} clientId={clientId} autoChain={autoChain} />
+      )}
     </div>
   );
 }
