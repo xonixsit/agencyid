@@ -3,6 +3,7 @@ import { AgentCard } from "@/components/dashboard/AgentCard";
 import { StatsBar } from "@/components/dashboard/StatsBar";
 import { Brain, PenTool, Target, Zap, ClipboardList, BarChart3, Paintbrush } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ReviewQueue } from "@/components/pipeline/ReviewQueue";
 
 const stats = [
   { label: "Active Clients", value: "0", change: "", positive: true },
@@ -95,6 +96,8 @@ export default function Dashboard() {
 
         {/* Stats */}
         <StatsBar stats={stats} />
+
+        <ReviewQueue />
 
         {/* Agents Grid */}
         <div>

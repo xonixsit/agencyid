@@ -38,6 +38,7 @@ const AI_FIELDS = fields.filter((f) => f.aiGenerated).map((f) => f.name);
 
 export function ClientForm({ onClose }: ClientFormProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [autoChain, setAutoChain] = useState(true);
   const [loading, setLoading] = useState(false);
   const [autofilling, setAutofilling] = useState(false);
   const [regenField, setRegenField] = useState<string | null>(null);
@@ -100,6 +101,7 @@ export function ClientForm({ onClose }: ClientFormProps) {
       brand_voice: formData.brand_voice || null,
       competitors: formData.competitors || null,
       budget: formData.budget || null,
+      auto_chain: autoChain,
     });
 
     setLoading(false);
@@ -179,11 +181,17 @@ export function ClientForm({ onClose }: ClientFormProps) {
           </div>
         ))}
 
-        <div className="col-span-2 flex justify-end gap-3 pt-2">
-          <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="glow" disabled={loading}>
-            {loading ? "Creating..." : "Create Client"}
-          </Button>
+        <div className="col-span-2 flex items-center justify-between gap-3 pt-2 border-t border-border">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+            <input type="checkbox" checked={autoChain} onChange={(e) => setAutoChain(e.target.checked)} className="rounded border-border" />
+            <span>Auto-chain agents — after each approval, run the next stage automatically</span>
+          </label>
+          <div className="flex gap-3">
+            <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+            <Button type="submit" variant="glow" disabled={loading}>
+              {loading ? "Creating..." : "Create Client"}
+            </Button>
+          </div>
         </div>
       </form>
     </div>
