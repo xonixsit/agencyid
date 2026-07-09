@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { downloadOutputPdf } from "@/lib/pdf-export";
+import { PipelineBoard } from "@/components/pipeline/PipelineBoard";
+import { ReviewActions, TABLE_TO_STAGE } from "@/components/pipeline/ReviewActions";
 
 const statusColor = (s: string) =>
   s === "active" ? "bg-status-active/10 text-status-active" :
@@ -41,11 +43,13 @@ function InfoItem({ icon, label, value, full }: InfoItemProps) {
   );
 }
 
-function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; typeField?: string; agentLabel: string; clientName?: string }) {
+function OutputCard({ item, typeField, agentLabel, clientName, table, clientId, autoChain }: { item: any; typeField?: string; agentLabel: string; clientName?: string; table: string; clientId: string; autoChain?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const body = item.content || item.description || "";
+  const contentField: "content" | "description" = table === "project_tasks" ? "description" : "content";
+  const body = item[contentField] || "";
   const typeVal = typeField && item[typeField] ? String(item[typeField]).replace(/_/g, " ") : undefined;
+  const stageKey = TABLE_TO_STAGE[table];
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,7 +62,8 @@ function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; ty
         meta: {
           Type: typeVal,
           Platform: item.platform,
-          Status: item.status,
+          Status: item.review_status || item.status,
+          Version: item.version ? `v${item.version}` : undefined,
           Created: new Date(item.created_at).toLocaleDateString(),
         },
         content: body,
@@ -69,22 +74,19 @@ function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; ty
   };
 
   return (
-    <div className="rounded-md border border-border bg-background p-4 space-y-2">
-      <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
-        <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
-        <div className="flex items-center gap-2">
-          {typeVal && <span className="text-xs text-muted-foreground font-mono">{typeVal}</span>}
-          {item.platform && <span className="text-xs text-dim">· {item.platform}</span>}
-          <span className={cn(
-            "status-badge text-xs",
-            item.status === "approved" ? "bg-status-active/10 text-status-active" : "bg-muted text-muted-foreground"
-          )}>
-            {item.status}
-          </span>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDownload} disabled={downloading} title="Download PDF">
-            <Download className="h-3.5 w-3.5" />
-          </Button>
+    <div className="rounded-md border border-border bg-background p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
+          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+            {typeVal && <span className="font-mono">{typeVal}</span>}
+            {item.platform && <span>· {item.platform}</span>}
+            <span>· {new Date(item.created_at).toLocaleDateString()}</span>
+          </div>
         </div>
+        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleDownload} disabled={downloading} title="Download PDF">
+          <Download className="h-3.5 w-3.5" />
+        </Button>
       </div>
       {!expanded && (
         <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap">
@@ -96,14 +98,20 @@ function OutputCard({ item, typeField, agentLabel, clientName }: { item: any; ty
           <ReactMarkdown>{body}</ReactMarkdown>
         </div>
       )}
-      <p className="text-xs text-dim">{new Date(item.created_at).toLocaleDateString()}</p>
+      {item.review_notes && (
+        <p className="text-xs text-yellow-400/80 border-l-2 border-yellow-500/40 pl-2">Feedback: {item.review_notes}</p>
+      )}
+      {stageKey && (
+        <ReviewActions table={table} row={item} stageKey={stageKey} contentField={contentField} clientId={clientId} autoChain={autoChain} />
+      )}
     </div>
   );
 }
 
-function OutputSection({ title, count, items, typeField, generatePath, generateLabel, agentLabel, clientName }: {
+function OutputSection({ title, count, items, typeField, generatePath, generateLabel, agentLabel, clientName, table, clientId, autoChain }: {
   title: string; count: number; items: any[]; typeField?: string;
   generatePath?: string; generateLabel?: string; agentLabel: string; clientName?: string;
+  table: string; clientId: string; autoChain?: boolean;
 }) {
   const navigate = useNavigate();
   return (
@@ -123,7 +131,7 @@ function OutputSection({ title, count, items, typeField, generatePath, generateL
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <OutputCard key={item.id} item={item} typeField={typeField} agentLabel={agentLabel} clientName={clientName} />
+            <OutputCard key={item.id} item={item} typeField={typeField} agentLabel={agentLabel} clientName={clientName} table={table} clientId={clientId} autoChain={autoChain} />
           ))}
         </div>
       )}
@@ -288,33 +296,42 @@ export default function ClientDetail() {
           </div>
         </div>
 
+        <PipelineBoard clientId={client.id} />
+
         <OutputSection title="Strategies" count={strategies?.length || 0} items={strategies || []}
           typeField="strategy_type" generatePath={`/strategist?client=${client.id}`}
-          agentLabel="Strategist" clientName={client.company_name} />
+          agentLabel="Strategist" clientName={client.company_name}
+          table="strategies" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Copy Outputs" count={copyOutputs?.length || 0} items={copyOutputs || []}
           typeField="copy_type" generatePath={`/copywriter?client=${client.id}`}
-          agentLabel="Copywriter" clientName={client.company_name} />
+          agentLabel="Copywriter" clientName={client.company_name}
+          table="copy_outputs" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Media Plans" count={mediaPlans?.length || 0} items={mediaPlans || []}
           typeField="campaign_objective" generatePath={`/campaigns?client=${client.id}`}
-          agentLabel="Media Buyer" clientName={client.company_name} />
+          agentLabel="Media Buyer" clientName={client.company_name}
+          table="media_plans" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Automations" count={automations?.length || 0} items={automations || []}
           typeField="automation_type" generatePath={`/automations?client=${client.id}`}
-          agentLabel="Automation Builder" clientName={client.company_name} />
+          agentLabel="Automation Builder" clientName={client.company_name}
+          table="automations" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Funnel Designs" count={funnelDesigns?.length || 0} items={funnelDesigns || []}
-          typeField="funnel_type" generatePath={`/funnels?client=${client.id}`}
-          agentLabel="Conversion Designer" clientName={client.company_name} />
+          typeField="funnel_type" generatePath={`/conversion-designer?client=${client.id}`}
+          agentLabel="Conversion Designer" clientName={client.company_name}
+          table="funnel_designs" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Creative Briefs" count={creativeBriefs?.length || 0} items={creativeBriefs || []}
-          typeField="brief_type" generatePath={`/designer?client=${client.id}`}
-          agentLabel="Graphic Designer" clientName={client.company_name} />
+          typeField="brief_type" generatePath={`/graphic-designer?client=${client.id}`}
+          agentLabel="Graphic Designer" clientName={client.company_name}
+          table="creative_briefs" clientId={client.id} autoChain={client.auto_chain} />
 
         <OutputSection title="Project Plans" count={projectTasks?.length || 0} items={projectTasks || []}
           typeField="agent_type" generatePath={`/project-manager?client=${client.id}`}
-          agentLabel="Project Manager" clientName={client.company_name} />
+          agentLabel="Project Manager" clientName={client.company_name}
+          table="project_tasks" clientId={client.id} autoChain={client.auto_chain} />
       </div>
     </AppLayout>
   );
