@@ -10,6 +10,7 @@ import ReactMarkdown from "react-markdown";
 import { downloadOutputPdf } from "@/lib/pdf-export";
 import { PipelineBoard } from "@/components/pipeline/PipelineBoard";
 import { ReviewActions, TABLE_TO_STAGE } from "@/components/pipeline/ReviewActions";
+import { BrandAssets } from "@/components/clients/BrandAssets";
 
 const statusColor = (s: string) =>
   s === "active" ? "bg-status-active/10 text-status-active" :
@@ -295,6 +296,8 @@ export default function ClientDetail() {
             {client.notes && <InfoItem icon={<FileText className="h-3.5 w-3.5" />} label="Notes" value={client.notes} full />}
           </div>
         </div>
+
+        <BrandAssets clientId={client.id} />
 
         <PipelineBoard clientId={client.id} />
 

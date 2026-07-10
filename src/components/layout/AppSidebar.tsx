@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 import {
   LayoutDashboard,
   Users,
@@ -11,6 +12,8 @@ import {
   Paintbrush,
   ClipboardList,
   Settings,
+  LogOut,
+  Shield,
 } from "lucide-react";
 
 const navItems = [
@@ -27,10 +30,10 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-[220px] flex-col border-r border-border bg-card">
-      {/* Logo */}
       <div className="flex h-14 items-center gap-2 border-b border-border px-5">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
           <Zap className="h-4 w-4 text-primary-foreground" />
@@ -40,22 +43,14 @@ export function AppSidebar() {
         </span>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 space-y-0.5 px-3 py-4">
         {navItems.map((item) => {
-          const isActive =
-            item.path === "/"
-              ? location.pathname === "/"
-              : location.pathname.startsWith(item.path);
+          const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
           return (
-            <Link
-              key={item.path}
-              to={item.path}
+            <Link key={item.path} to={item.path}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                isActive
-                  ? "bg-accent text-accent-foreground font-medium"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                isActive ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -65,15 +60,22 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-border px-3 py-3">
-        <Link
-          to="/settings"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <Settings className="h-4 w-4" />
-          Settings
+      <div className="border-t border-border px-3 py-3 space-y-1">
+        {user && (
+          <div className="px-3 pb-2 text-xs">
+            <div className="text-foreground truncate flex items-center gap-1">
+              {isAdmin && <Shield className="h-3 w-3 text-primary" />}
+              {user.email}
+            </div>
+            <div className="text-dim">{isAdmin ? "admin" : "member"}</div>
+          </div>
+        )}
+        <Link to="/settings" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+          <Settings className="h-4 w-4" /> Settings
         </Link>
+        <button onClick={signOut} className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+          <LogOut className="h-4 w-4" /> Sign out
+        </button>
       </div>
     </aside>
   );
