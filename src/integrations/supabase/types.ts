@@ -93,6 +93,59 @@ export type Database = {
           },
         ]
       }
+      brand_assets: {
+        Row: {
+          asset_type: Database["public"]["Enums"]["brand_asset_type"]
+          client_id: string
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          meta: Json | null
+          storage_path: string | null
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+          value: string | null
+        }
+        Insert: {
+          asset_type: Database["public"]["Enums"]["brand_asset_type"]
+          client_id: string
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          meta?: Json | null
+          storage_path?: string | null
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          asset_type?: Database["public"]["Enums"]["brand_asset_type"]
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          meta?: Json | null
+          storage_path?: string | null
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_assets_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           auto_chain: boolean
@@ -569,6 +622,36 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          notify_review_ready: boolean
+          notify_weekly_digest: boolean
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          notify_review_ready?: boolean
+          notify_weekly_digest?: boolean
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          notify_review_ready?: boolean
+          notify_weekly_digest?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       project_tasks: {
         Row: {
           agent_type: string
@@ -709,14 +792,49 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "member"
+      brand_asset_type:
+        | "logo"
+        | "image"
+        | "color"
+        | "font"
+        | "document"
+        | "link"
       client_status: "onboarding" | "active" | "paused" | "completed"
       copy_type:
         | "ad_copy"
@@ -860,6 +978,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "member"],
+      brand_asset_type: ["logo", "image", "color", "font", "document", "link"],
       client_status: ["onboarding", "active", "paused", "completed"],
       copy_type: [
         "ad_copy",
