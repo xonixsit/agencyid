@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react";
+import { Palette, BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
@@ -172,6 +172,12 @@ export default function ConversionDesigner() {
                 <div className="flex items-center gap-2 text-xs text-primary mr-auto">
                   <Brain className="h-3.5 w-3.5" />
                   <span>Strategy linked: {latestStrategy.title}</span>
+                </div>
+              )}
+              {selectedClientId && brandAssetCount > 0 && (
+                <div className="flex items-center gap-2 text-xs text-primary mr-auto">
+                  <Palette className="h-3.5 w-3.5" />
+                  <span>Brand assets linked: {brandAssetCount}</span>
                 </div>
               )}
               <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}>

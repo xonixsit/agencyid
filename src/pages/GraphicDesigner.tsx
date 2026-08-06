@@ -248,6 +248,12 @@ export default function GraphicDesigner() {
               <span>Strategy linked: {latestStrategy.title}</span>
             </div>
           )}
+          {selectedClientId && brandAssetCount > 0 && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Palette className="h-3.5 w-3.5" />
+              <span>Brand assets linked: {brandAssetCount}</span>
+            </div>
+          )}
 
           <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}
             className="w-full">

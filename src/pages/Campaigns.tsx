@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Target, Loader2, ChevronDown, Save, Brain } from "lucide-react";
+import { Palette, Target, Loader2, ChevronDown, Save, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { DocumentView } from "@/components/DocumentView";
@@ -183,6 +183,12 @@ export default function Campaigns() {
             <div className="flex items-center gap-2 text-xs text-primary">
               <Brain className="h-3.5 w-3.5" />
               <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
+          {selectedClientId && brandAssetCount > 0 && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Palette className="h-3.5 w-3.5" />
+              <span>Brand assets linked: {brandAssetCount}</span>
             </div>
           )}
 

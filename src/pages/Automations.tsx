@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Zap, Loader2, Save, ChevronDown, Brain, Sparkles } from "lucide-react";
+import { Palette, Zap, Loader2, Save, ChevronDown, Brain, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,6 +147,12 @@ export default function Automations() {
             <div className="flex items-center gap-2 text-xs text-primary mb-2">
               <Brain className="h-3.5 w-3.5" />
               <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
+          {selectedClientId && brandAssetCount > 0 && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Palette className="h-3.5 w-3.5" />
+              <span>Brand assets linked: {brandAssetCount}</span>
             </div>
           )}
           <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending} className="w-full">
