@@ -15,8 +15,9 @@ async function buildPrompts(params: {
   variations: number;
   aspect_ratio: string;
   extra?: string;
+  brand_context?: string | null;
 }): Promise<{ label: string; prompt: string }[]> {
-  const { apiKey, client, brief, platform, variations, aspect_ratio, extra } = params;
+  const { apiKey, client, brief, platform, variations, aspect_ratio, extra, brand_context } = params;
 
   const sys = `You are an art director. Turn a creative brief into ${variations} distinct, production-ready IMAGE GENERATION prompts for an ad/social post. Each prompt must be a single vivid paragraph (60-110 words) describing: subject, composition, lighting, color palette (reference hex codes when the brief lists them), art style, mood, and any on-image text. Respect the platform aspect ratio ${aspect_ratio}. Return ONLY a JSON array of ${variations} objects with fields "label" (short 2-4 word variation name) and "prompt" (the image prompt). No commentary.`;
 
