@@ -15,8 +15,9 @@ async function buildPrompts(params: {
   variations: number;
   aspect_ratio: string;
   extra?: string;
+  brand_context?: string | null;
 }): Promise<{ label: string; prompt: string }[]> {
-  const { apiKey, client, brief, platform, variations, aspect_ratio, extra } = params;
+  const { apiKey, client, brief, platform, variations, aspect_ratio, extra, brand_context } = params;
 
   const sys = `You are an art director. Turn a creative brief into ${variations} distinct, production-ready IMAGE GENERATION prompts for an ad/social post. Each prompt must be a single vivid paragraph (60-110 words) describing: subject, composition, lighting, color palette (reference hex codes when the brief lists them), art style, mood, and any on-image text. Respect the platform aspect ratio ${aspect_ratio}. Return ONLY a JSON array of ${variations} objects with fields "label" (short 2-4 word variation name) and "prompt" (the image prompt). No commentary.`;
 
@@ -26,7 +27,7 @@ Offer: ${client.offer || "n/a"}
 Audience: ${client.target_audience || "n/a"}
 Brand voice: ${client.brand_voice || "n/a"}
 Platform: ${platform || "generic social"}
-${extra ? `Extra direction: ${extra}\n` : ""}
+${extra ? `Extra direction: ${extra}\n` : ""}${brand_context ? `--- CLIENT BRAND ASSETS (must be respected: colors, fonts, logo usage, captions, style guide) ---\n${brand_context}\n--- END BRAND ASSETS ---\n` : ""}
 --- CREATIVE BRIEF ---
 ${brief}
 --- END BRIEF ---`;
@@ -82,11 +83,11 @@ serve(async (req) => {
   try {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not set");
-    const { client, brief, platform, variations = 3, aspect_ratio = "1:1", extra } = await req.json();
+    const { client, brief, platform, variations = 3, aspect_ratio = "1:1", extra, brand_context } = await req.json();
     if (!client?.company_name || !brief) throw new Error("client and brief are required");
 
     const prompts = await buildPrompts({
-      apiKey, client, brief, platform, variations: Math.min(Math.max(variations, 1), 4), aspect_ratio, extra,
+      apiKey, client, brief, platform, variations: Math.min(Math.max(variations, 1), 4), aspect_ratio, extra, brand_context,
     });
 
     const results: { label: string; prompt: string; image_url: string }[] = [];

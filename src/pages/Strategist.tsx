@@ -6,9 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Brain, Loader2, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 export default function Strategist() {
   const [selectedClientId, setSelectedClientId] = useState("");
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const [strategyType, setStrategyType] = useState("full_funnel");
   const [generatedStrategy, setGeneratedStrategy] = useState("");
   const { toast } = useToast();
@@ -42,6 +44,7 @@ export default function Strategist() {
             budget: client.budget,
           },
           strategy_type: strategyType,
+          brand_context: brandContext,
         },
       });
 

@@ -3,11 +3,12 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PenTool, Loader2, ChevronDown, Copy, Check, Brain, Sparkles } from "lucide-react";
+import { Palette, PenTool, Loader2, ChevronDown, Copy, Check, Brain, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const copyTypes = [
   { value: "ad_copy", label: "Ad Copy" },
@@ -37,6 +38,7 @@ export default function Copywriter() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {
@@ -82,6 +84,7 @@ export default function Copywriter() {
           platform,
           additional_context: additionalContext,
           strategy_context: latestStrategy?.content || null,
+          brand_context: brandContext,
         },
       });
 
@@ -187,6 +190,12 @@ export default function Copywriter() {
             <div className="flex items-center gap-2 text-xs text-primary">
               <Brain className="h-3.5 w-3.5" />
               <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
+          {selectedClientId && brandAssetCount > 0 && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Palette className="h-3.5 w-3.5" />
+              <span>Brand assets linked: {brandAssetCount}</span>
             </div>
           )}
 

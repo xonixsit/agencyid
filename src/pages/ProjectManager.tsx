@@ -11,6 +11,7 @@ import { Loader2, ListChecks, Plus, CheckCircle2, Clock, AlertCircle, Sparkles }
 import { Textarea } from "@/components/ui/textarea";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -28,6 +29,7 @@ const STATUS_ICONS: Record<string, typeof CheckCircle2> = {
 
 export default function ProjectManager() {
   const [selectedClientId, setSelectedClientId] = useState("");
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const [context, setContext] = useState("");
   const [generatedPlan, setGeneratedPlan] = useState("");
   const { toast } = useToast();
@@ -79,7 +81,7 @@ export default function ProjectManager() {
       };
 
       const { data, error } = await supabase.functions.invoke("project-manager-agent", {
-        body: { client, existing_outputs, additional_context: context },
+        body: { client, existing_outputs, additional_context: context, brand_context: brandContext },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);

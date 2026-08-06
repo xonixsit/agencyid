@@ -4,9 +4,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { Upload, Trash2, Palette, Type, FileText, Link2, Image as ImageIcon, Plus, Loader2 } from "lucide-react";
+import { Upload, Trash2, Palette, Type, FileText, Link2, Image as ImageIcon, Plus, Loader2, BookOpen, Quote } from "lucide-react";
 
-type AssetType = "logo" | "image" | "color" | "font" | "document" | "link";
+type AssetType = "logo" | "image" | "color" | "font" | "document" | "link" | "guideline" | "caption";
 
 const TYPE_META: Record<AssetType, { label: string; icon: React.ComponentType<any>; needsFile: boolean; }> = {
   logo:     { label: "Logos",     icon: ImageIcon, needsFile: true },
@@ -15,6 +15,8 @@ const TYPE_META: Record<AssetType, { label: string; icon: React.ComponentType<an
   font:     { label: "Fonts",     icon: Type,      needsFile: false },
   document: { label: "Guidelines", icon: FileText, needsFile: true },
   link:     { label: "References", icon: Link2,    needsFile: false },
+  guideline:{ label: "Guidelines", icon: BookOpen, needsFile: false },
+  caption:  { label: "Captions",  icon: Quote,     needsFile: false },
 };
 
 export function BrandAssets({ clientId }: { clientId: string }) {
@@ -46,9 +48,14 @@ export function BrandAssets({ clientId }: { clientId: string }) {
     <div className="rounded-lg border border-border bg-card p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Brand Assets</h2>
+        <span className="text-[10px] font-mono uppercase text-dim">Used by all agents</span>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <p className="text-xs text-muted-foreground">
+        Anything added here (logo, colors, fonts, captions, style guide) is automatically fed to every agent as brand context.
+      </p>
+
+      <div className="grid grid-cols-4 gap-3">
         {(Object.keys(TYPE_META) as AssetType[]).map((t) => {
           const meta = TYPE_META[t];
           const Icon = meta.icon;
@@ -188,6 +195,19 @@ function AddDialog({ type, clientId, userId, onClose, onSaved }: { type: AssetTy
           <div>
             <label className="text-xs font-mono uppercase text-muted-foreground block mb-1">Font family / spec</label>
             <input className="terminal-input w-full" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Inter, weight 400/600" />
+          </div>
+        )}
+        {(type === "guideline" || type === "caption") && (
+          <div>
+            <label className="text-xs font-mono uppercase text-muted-foreground block mb-1">
+              {type === "guideline" ? "Guideline / style rules" : "Caption / tagline"}
+            </label>
+            <textarea
+              className="terminal-input w-full min-h-[120px] resize-y"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder={type === "guideline" ? "Tone: confident, never salesy. Always use sentence case headlines…" : "Train smarter. Not longer."}
+            />
           </div>
         )}
         {type === "link" && (

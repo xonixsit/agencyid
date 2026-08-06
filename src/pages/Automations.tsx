@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Zap, Loader2, Save, ChevronDown, Brain, Sparkles } from "lucide-react";
+import { Palette, Zap, Loader2, Save, ChevronDown, Brain, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const AUTOMATION_TYPES = [
   { value: "nurture_sequence", label: "Nurture Sequence" },
@@ -48,6 +49,7 @@ export default function Automations() {
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {
@@ -68,7 +70,7 @@ export default function Automations() {
     mutationFn: async () => {
       if (!selectedClient) throw new Error("Select a client first");
       const { data, error } = await supabase.functions.invoke("automation-builder-agent", {
-        body: { client: selectedClient, automation_type: automationType, context, strategy_context: latestStrategy?.content || null },
+        body: { client: selectedClient, automation_type: automationType, context, strategy_context: latestStrategy?.content || null, brand_context: brandContext },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
@@ -145,6 +147,12 @@ export default function Automations() {
             <div className="flex items-center gap-2 text-xs text-primary mb-2">
               <Brain className="h-3.5 w-3.5" />
               <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
+          {selectedClientId && brandAssetCount > 0 && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Palette className="h-3.5 w-3.5" />
+              <span>Brand assets linked: {brandAssetCount}</span>
             </div>
           )}
           <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending} className="w-full">

@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react";
+import { Palette, BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const FUNNEL_TYPES = [
   { value: "lead_generation", label: "Lead Generation Funnel" },
@@ -46,6 +47,7 @@ export default function ConversionDesigner() {
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {
@@ -66,7 +68,7 @@ export default function ConversionDesigner() {
     mutationFn: async () => {
       if (!selectedClient) throw new Error("Select a client first");
       const { data, error } = await supabase.functions.invoke("conversion-designer-agent", {
-        body: { client: selectedClient, funnel_type: funnelType, context, strategy_context: latestStrategy?.content || null },
+        body: { client: selectedClient, funnel_type: funnelType, context, strategy_context: latestStrategy?.content || null, brand_context: brandContext },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
@@ -170,6 +172,12 @@ export default function ConversionDesigner() {
                 <div className="flex items-center gap-2 text-xs text-primary mr-auto">
                   <Brain className="h-3.5 w-3.5" />
                   <span>Strategy linked: {latestStrategy.title}</span>
+                </div>
+              )}
+              {selectedClientId && brandAssetCount > 0 && (
+                <div className="flex items-center gap-2 text-xs text-primary mr-auto">
+                  <Palette className="h-3.5 w-3.5" />
+                  <span>Brand assets linked: {brandAssetCount}</span>
                 </div>
               )}
               <Button onClick={() => generateMutation.mutate()} disabled={!selectedClientId || generateMutation.isPending}>

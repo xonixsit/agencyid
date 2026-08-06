@@ -10,6 +10,7 @@ import { DocumentView } from "@/components/DocumentView";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles, ImageIcon, Download, Trash2 } from "lucide-react";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const ASPECT_RATIOS = [
   { value: "1:1", label: "Square 1:1" },
@@ -48,6 +49,7 @@ export default function GraphicDesigner() {
   const [visualExtra, setVisualExtra] = useState("");
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {
@@ -91,7 +93,7 @@ export default function GraphicDesigner() {
       const client = clients?.find((c) => c.id === selectedClientId);
       if (!client) throw new Error("Select a client");
       const { data, error } = await supabase.functions.invoke("graphic-designer-agent", {
-        body: { client, brief_type: briefType, platform, context, strategy_context: latestStrategy?.content || null },
+        body: { client, brief_type: briefType, platform, context, strategy_context: latestStrategy?.content || null, brand_context: brandContext },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
@@ -165,7 +167,7 @@ export default function GraphicDesigner() {
       const { data, error } = await supabase.functions.invoke("graphic-designer-image", {
         body: {
           client, brief: generatedBrief, platform,
-          variations, aspect_ratio: aspectRatio, extra: visualExtra,
+          variations, aspect_ratio: aspectRatio, extra: visualExtra, brand_context: brandContext,
         },
       });
       if (error) throw error;
@@ -244,6 +246,12 @@ export default function GraphicDesigner() {
             <div className="flex items-center gap-2 text-xs text-primary mb-2">
               <Brain className="h-3.5 w-3.5" />
               <span>Strategy linked: {latestStrategy.title}</span>
+            </div>
+          )}
+          {selectedClientId && brandAssetCount > 0 && (
+            <div className="flex items-center gap-2 text-xs text-primary mb-2">
+              <Palette className="h-3.5 w-3.5" />
+              <span>Brand assets linked: {brandAssetCount}</span>
             </div>
           )}
 

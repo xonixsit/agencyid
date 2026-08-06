@@ -21,6 +21,10 @@ Return a structured business document in Markdown, never a wall of prose:
 Do not wrap the whole document in a code block. No preamble or sign-off text outside the document.
 --- END FORMAT STANDARD ---`;
 
+const brandBlock = (b?: string | null) =>
+  b ? `\n--- CLIENT BRAND ASSETS (must be respected: logo usage, colors, fonts, captions, style guide) ---\n${b}\n--- END BRAND ASSETS ---\n` : "";
+
+
 
 const funnelTypePrompts: Record<string, string> = {
   lead_generation: `Design a lead generation funnel. Include:
@@ -68,7 +72,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { client, funnel_type, context, strategy_context } = await req.json();
+    const { client, funnel_type, context, strategy_context, brand_context } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -133,7 +137,7 @@ Make every section description detailed enough for a designer to build without g
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt + DOC_STANDARD },
-          { role: "user", content: userPrompt },
+          { role: "user", content: brandBlock(brand_context) + userPrompt },
         ],
         temperature: 0.7,
         max_tokens: 5000,
