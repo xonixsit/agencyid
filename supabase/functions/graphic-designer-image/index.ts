@@ -26,7 +26,7 @@ Offer: ${client.offer || "n/a"}
 Audience: ${client.target_audience || "n/a"}
 Brand voice: ${client.brand_voice || "n/a"}
 Platform: ${platform || "generic social"}
-${extra ? `Extra direction: ${extra}\n` : ""}
+${extra ? `Extra direction: ${extra}\n` : ""}${brand_context ? `--- CLIENT BRAND ASSETS (must be respected: colors, fonts, logo usage, captions, style guide) ---\n${brand_context}\n--- END BRAND ASSETS ---\n` : ""}
 --- CREATIVE BRIEF ---
 ${brief}
 --- END BRIEF ---`;
@@ -82,11 +82,11 @@ serve(async (req) => {
   try {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not set");
-    const { client, brief, platform, variations = 3, aspect_ratio = "1:1", extra } = await req.json();
+    const { client, brief, platform, variations = 3, aspect_ratio = "1:1", extra, brand_context } = await req.json();
     if (!client?.company_name || !brief) throw new Error("client and brief are required");
 
     const prompts = await buildPrompts({
-      apiKey, client, brief, platform, variations: Math.min(Math.max(variations, 1), 4), aspect_ratio, extra,
+      apiKey, client, brief, platform, variations: Math.min(Math.max(variations, 1), 4), aspect_ratio, extra, brand_context,
     });
 
     const results: { label: string; prompt: string; image_url: string }[] = [];
