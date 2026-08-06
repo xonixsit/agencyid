@@ -5,6 +5,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const DOC_STANDARD = `
+
+--- DOCUMENT FORMAT STANDARD (mandatory) ---
+Return a structured business document in Markdown, never a wall of prose:
+1. Start with "# <Deliverable Title> — <Client Name>".
+2. Follow with a metadata block as a two-column Markdown table: Client, Deliverable, Prepared By (agent role), Date (leave as {{date}}), Version (v1.0).
+3. Add "## Executive Summary" — max 4 sentences.
+4. Number every major section: "## 1. ...", "## 2. ..." and use "### 2.1 ..." for subsections.
+5. Use Markdown tables for any comparable data (budgets, timelines, audiences, steps, specs, KPIs). Tables must have header rows.
+6. Use bullet or numbered lists for steps and requirements — never long paragraphs. Keep paragraphs under 3 sentences.
+7. Bold key terms, labels and metric names.
+8. Use "> " blockquotes for callouts, warnings and implementation notes.
+9. End with "## Next Steps" as a numbered checklist and an "## Appendix" only when needed.
+Do not wrap the whole document in a code block. No preamble or sign-off text outside the document.
+--- END FORMAT STANDARD ---`;
+
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -56,7 +73,7 @@ Provide:
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: systemPrompt + DOC_STANDARD },
           { role: "user", content: userPrompt },
         ],
       }),
