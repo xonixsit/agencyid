@@ -835,6 +835,8 @@ export type Database = {
         | "font"
         | "document"
         | "link"
+        | "guideline"
+        | "caption"
       client_status: "onboarding" | "active" | "paused" | "completed"
       copy_type:
         | "ad_copy"
@@ -979,7 +981,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "member"],
-      brand_asset_type: ["logo", "image", "color", "font", "document", "link"],
+      brand_asset_type: [
+        "logo",
+        "image",
+        "color",
+        "font",
+        "document",
+        "link",
+        "guideline",
+        "caption",
+      ],
       client_status: ["onboarding", "active", "paused", "completed"],
       copy_type: [
         "ad_copy",
