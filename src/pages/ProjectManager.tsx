@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ListChecks, Plus, CheckCircle2, Clock, AlertCircle, Sparkles } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -197,8 +197,8 @@ export default function ProjectManager() {
           <Card className="border-border bg-card">
             <CardHeader><CardTitle className="text-base font-mono">Generated Plan</CardTitle></CardHeader>
             <CardContent>
-              <div className="prose prose-invert prose-sm max-w-none">
-                <ReactMarkdown>{generatedPlan}</ReactMarkdown>
+              <div className="max-w-none">
+                <DocumentView content={generatedPlan} />
               </div>
             </CardContent>
           </Card>
@@ -221,8 +221,8 @@ export default function ProjectManager() {
                             {task.description && (
                               <details className="mt-2">
                                 <summary className="text-xs text-muted-foreground cursor-pointer">View details</summary>
-                                <div className="prose prose-invert prose-sm max-w-none mt-2">
-                                  <ReactMarkdown>{task.description}</ReactMarkdown>
+                                <div className="max-w-none mt-2">
+                                  <DocumentView content={task.description} />
                                 </div>
                               </details>
                             )}

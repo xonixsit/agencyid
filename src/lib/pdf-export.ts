@@ -14,41 +14,74 @@ export async function downloadOutputPdf(opts: {
   agentLabel: string;
 }) {
   const { title, subtitle, meta = {}, content, agentLabel } = opts;
+  marked.setOptions({ gfm: true, breaks: false });
   const html = await marked.parse(content || "");
+  const dateStr = new Date().toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-  const metaRows = Object.entries(meta)
+  const metaRows = Object.entries({ ...meta, Date: dateStr, Version: "v1.0" })
     .filter(([, v]) => v)
     .map(
       ([k, v]) =>
-        `<tr><td style="padding:4px 12px 4px 0;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;font-family:monospace;vertical-align:top;white-space:nowrap;">${k}</td><td style="padding:4px 0;font-size:12px;color:#111;">${v}</td></tr>`,
+        `<tr><th>${k}</th><td>${v}</td></tr>`,
     )
     .join("");
 
   const wrapper = document.createElement("div");
-  wrapper.style.cssText = "padding:48px;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#111;background:#fff;width:780px;";
+  wrapper.style.cssText =
+    "width:780px;background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif;";
   wrapper.innerHTML = `
-    <div style="border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:24px;">
-      <div style="font-size:11px;font-family:monospace;color:#22c55e;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">${agentLabel}</div>
-      <h1 style="font-size:24px;font-weight:700;margin:0 0 6px 0;line-height:1.2;">${title}</h1>
-      ${subtitle ? `<div style="font-size:13px;color:#666;">${subtitle}</div>` : ""}
+    <div class="doc">
+      <header class="doc-head">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-name">${agentLabel}</span>
+        </div>
+        <h1>${title}</h1>
+        ${subtitle ? `<div class="sub">${subtitle}</div>` : ""}
+      </header>
+
+      ${metaRows ? `<table class="meta">${metaRows}</table>` : ""}
+
+      <div class="md-body">${html}</div>
+
+      <footer class="doc-foot">
+        <span>${agentLabel} — ${title}</span>
+        <span>Confidential · Prepared ${dateStr}</span>
+      </footer>
     </div>
-    ${metaRows ? `<table style="margin-bottom:24px;border-collapse:collapse;">${metaRows}</table>` : ""}
-    <div class="md-body" style="font-size:13px;line-height:1.6;color:#222;">${html}</div>
     <style>
-      .md-body h1{font-size:20px;margin:24px 0 12px;border-bottom:1px solid #ddd;padding-bottom:4px;}
-      .md-body h2{font-size:17px;margin:20px 0 10px;color:#111;}
-      .md-body h3{font-size:14px;margin:16px 0 8px;color:#333;text-transform:uppercase;letter-spacing:0.03em;}
+      .doc{padding:52px 56px;}
+      .doc-head{border-bottom:3px double #111;padding-bottom:18px;margin-bottom:22px;}
+      .brand{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+      .brand-mark{display:inline-block;width:10px;height:10px;background:#16a34a;border-radius:2px;}
+      .brand-name{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#16a34a;}
+      .doc-head h1{font-size:26px;line-height:1.2;margin:0 0 6px;font-weight:700;letter-spacing:-0.01em;}
+      .doc-head .sub{font-size:13px;color:#555;font-style:italic;}
+      table.meta{border-collapse:collapse;width:100%;margin:0 0 28px;font-family:Helvetica,Arial,sans-serif;}
+      table.meta th{width:150px;text-align:left;padding:6px 12px 6px 0;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:#777;font-weight:600;border-bottom:1px solid #eee;vertical-align:top;}
+      table.meta td{padding:6px 0;font-size:12px;color:#111;border-bottom:1px solid #eee;}
+      .md-body{font-size:12.5px;line-height:1.65;color:#1a1a1a;}
+      .md-body h1{font-size:19px;margin:26px 0 12px;padding-bottom:5px;border-bottom:1px solid #111;font-weight:700;page-break-after:avoid;}
+      .md-body h2{font-size:15.5px;margin:24px 0 10px;padding-left:10px;border-left:3px solid #16a34a;font-weight:700;page-break-after:avoid;}
+      .md-body h3{font-size:11px;margin:18px 0 6px;font-family:Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#16a34a;page-break-after:avoid;}
+      .md-body h4{font-size:12.5px;margin:14px 0 5px;font-weight:700;}
       .md-body p{margin:0 0 10px;}
       .md-body ul,.md-body ol{margin:0 0 12px;padding-left:22px;}
-      .md-body li{margin-bottom:4px;}
+      .md-body li{margin-bottom:5px;}
       .md-body strong{color:#000;}
-      .md-body code{background:#f4f4f4;padding:1px 5px;border-radius:3px;font-size:12px;}
-      .md-body pre{background:#f4f4f4;padding:12px;border-radius:4px;overflow:auto;font-size:11px;}
-      .md-body blockquote{border-left:3px solid #22c55e;margin:12px 0;padding:4px 12px;color:#555;background:#f9f9f9;}
-      .md-body table{border-collapse:collapse;margin:12px 0;width:100%;font-size:12px;}
-      .md-body th,.md-body td{border:1px solid #ddd;padding:6px 10px;text-align:left;}
-      .md-body th{background:#f4f4f4;}
-      .md-body hr{border:none;border-top:1px solid #ddd;margin:18px 0;}
+      .md-body code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-family:'Courier New',monospace;font-size:11px;}
+      .md-body pre{background:#f7f7f7;border:1px solid #e5e5e5;padding:12px;border-radius:4px;overflow:auto;font-size:10.5px;page-break-inside:avoid;}
+      .md-body blockquote{border-left:3px solid #16a34a;background:#f4faf6;margin:14px 0;padding:8px 14px;color:#333;font-style:italic;page-break-inside:avoid;}
+      .md-body table{border-collapse:collapse;margin:14px 0;width:100%;font-family:Helvetica,Arial,sans-serif;font-size:11px;page-break-inside:avoid;}
+      .md-body th,.md-body td{border:1px solid #d8d8d8;padding:7px 10px;text-align:left;vertical-align:top;}
+      .md-body th{background:#f1f3f2;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#444;}
+      .md-body tbody tr:nth-child(even){background:#fafafa;}
+      .md-body hr{border:none;border-top:1px solid #ddd;margin:20px 0;}
+      .doc-foot{margin-top:34px;padding-top:10px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-family:Helvetica,Arial,sans-serif;font-size:9px;color:#999;letter-spacing:.04em;}
     </style>
   `;
   document.body.appendChild(wrapper);
@@ -56,11 +89,12 @@ export async function downloadOutputPdf(opts: {
   try {
     await html2pdf()
       .set({
-        margin: [10, 10, 12, 10],
+        margin: [10, 8, 12, 8],
         filename: `${sanitizeFilename(agentLabel)}_${sanitizeFilename(title)}.pdf`,
-        image: { type: "jpeg", quality: 0.95 },
+        image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css", "avoid-all"] },
       } as any)
       .from(wrapper)
       .save();

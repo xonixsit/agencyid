@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Building2, Globe, Mail, User, Target, Megaphone, Palette, Trophy, Users, DollarSign, FileText, Sparkles, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 import { downloadOutputPdf } from "@/lib/pdf-export";
 import { PipelineBoard } from "@/components/pipeline/PipelineBoard";
 import { ReviewActions, TABLE_TO_STAGE } from "@/components/pipeline/ReviewActions";
@@ -95,8 +95,8 @@ function OutputCard({ item, typeField, agentLabel, clientName, table, clientId, 
         </p>
       )}
       {expanded && (
-        <div className="prose prose-invert prose-sm max-w-none mt-2">
-          <ReactMarkdown>{body}</ReactMarkdown>
+        <div className="max-w-none mt-2">
+          <DocumentView content={body} />
         </div>
       )}
       {item.review_notes && (
