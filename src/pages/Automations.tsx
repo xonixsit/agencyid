@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const AUTOMATION_TYPES = [
   { value: "nurture_sequence", label: "Nurture Sequence" },
@@ -48,6 +49,7 @@ export default function Automations() {
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {

@@ -10,6 +10,7 @@ import { BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react"
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const FUNNEL_TYPES = [
   { value: "lead_generation", label: "Lead Generation Funnel" },
@@ -46,6 +47,7 @@ export default function ConversionDesigner() {
 
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {

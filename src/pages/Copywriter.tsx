@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { DocumentView } from "@/components/DocumentView";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const copyTypes = [
   { value: "ad_copy", label: "Ad Copy" },
@@ -37,6 +38,7 @@ export default function Copywriter() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {
@@ -82,6 +84,7 @@ export default function Copywriter() {
           platform,
           additional_context: additionalContext,
           strategy_context: latestStrategy?.content || null,
+          brand_context: brandContext,
         },
       });
 

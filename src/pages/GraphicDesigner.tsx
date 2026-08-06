@@ -10,6 +10,7 @@ import { DocumentView } from "@/components/DocumentView";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles, ImageIcon, Download, Trash2 } from "lucide-react";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const ASPECT_RATIOS = [
   { value: "1:1", label: "Square 1:1" },
@@ -48,6 +49,7 @@ export default function GraphicDesigner() {
   const [visualExtra, setVisualExtra] = useState("");
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
   const { suggest, loading: suggesting } = useSuggestContext();
 
   const handleSuggestContext = async () => {

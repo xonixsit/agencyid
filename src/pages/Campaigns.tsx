@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { DocumentView } from "@/components/DocumentView";
 import { useSearchParams } from "react-router-dom";
+import { useBrandContext } from "@/hooks/use-brand-context";
 
 const PLATFORMS = [
   { value: "meta", label: "Meta (Facebook/Instagram)" },
@@ -42,6 +43,7 @@ export default function Campaigns() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: latestStrategy } = useLatestStrategy(selectedClientId);
+  const { brandContext, assetCount: brandAssetCount } = useBrandContext(selectedClientId);
 
   const { data: clients } = useQuery({
     queryKey: ["clients"],
@@ -82,6 +84,7 @@ export default function Campaigns() {
           campaign_objective: objective,
           budget_split: BUDGET_SPLITS.find((b) => b.value === budgetSplit)?.label,
           strategy_context: latestStrategy?.content || null,
+          brand_context: brandContext,
         },
       });
 
