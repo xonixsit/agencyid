@@ -21,6 +21,10 @@ Return a structured business document in Markdown, never a wall of prose:
 Do not wrap the whole document in a code block. No preamble or sign-off text outside the document.
 --- END FORMAT STANDARD ---`;
 
+const brandBlock = (b?: string | null) =>
+  b ? `\n--- CLIENT BRAND ASSETS (must be respected: logo usage, colors, fonts, captions, style guide) ---\n${b}\n--- END BRAND ASSETS ---\n` : "";
+
+
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -28,7 +32,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { client, existing_outputs, additional_context } = await req.json();
+    const { client, existing_outputs, additional_context, brand_context } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -79,7 +83,7 @@ Be specific, actionable, and production-ready. Every task should be assignable t
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt + DOC_STANDARD },
-          { role: "user", content: userPrompt },
+          { role: "user", content: brandBlock(brand_context) + userPrompt },
         ],
         temperature: 0.7,
         max_tokens: 4000,

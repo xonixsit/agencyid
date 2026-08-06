@@ -21,12 +21,16 @@ Return a structured business document in Markdown, never a wall of prose:
 Do not wrap the whole document in a code block. No preamble or sign-off text outside the document.
 --- END FORMAT STANDARD ---`;
 
+const brandBlock = (b?: string | null) =>
+  b ? `\n--- CLIENT BRAND ASSETS (must be respected: logo usage, colors, fonts, captions, style guide) ---\n${b}\n--- END BRAND ASSETS ---\n` : "";
+
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { client, platform, campaign_objective, budget_split, strategy_context } = await req.json();
+    const { client, platform, campaign_objective, budget_split, strategy_context, brand_context } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -117,7 +121,7 @@ Provide a complete media plan with:
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt + DOC_STANDARD },
-          { role: "user", content: userPrompt },
+          { role: "user", content: brandBlock(brand_context) + userPrompt },
         ],
       }),
     });
