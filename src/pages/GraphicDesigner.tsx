@@ -91,7 +91,7 @@ export default function GraphicDesigner() {
       const client = clients?.find((c) => c.id === selectedClientId);
       if (!client) throw new Error("Select a client");
       const { data, error } = await supabase.functions.invoke("graphic-designer-agent", {
-        body: { client, brief_type: briefType, platform, context, strategy_context: latestStrategy?.content || null },
+        body: { client, brief_type: briefType, platform, context, strategy_context: latestStrategy?.content || null, brand_context: brandContext },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
@@ -165,7 +165,7 @@ export default function GraphicDesigner() {
       const { data, error } = await supabase.functions.invoke("graphic-designer-image", {
         body: {
           client, brief: generatedBrief, platform,
-          variations, aspect_ratio: aspectRatio, extra: visualExtra,
+          variations, aspect_ratio: aspectRatio, extra: visualExtra, brand_context: brandContext,
         },
       });
       if (error) throw error;

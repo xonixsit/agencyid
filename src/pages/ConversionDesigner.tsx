@@ -66,7 +66,7 @@ export default function ConversionDesigner() {
     mutationFn: async () => {
       if (!selectedClient) throw new Error("Select a client first");
       const { data, error } = await supabase.functions.invoke("conversion-designer-agent", {
-        body: { client: selectedClient, funnel_type: funnelType, context, strategy_context: latestStrategy?.content || null },
+        body: { client: selectedClient, funnel_type: funnelType, context, strategy_context: latestStrategy?.content || null, brand_context: brandContext },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);

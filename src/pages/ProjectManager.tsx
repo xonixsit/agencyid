@@ -79,7 +79,7 @@ export default function ProjectManager() {
       };
 
       const { data, error } = await supabase.functions.invoke("project-manager-agent", {
-        body: { client, existing_outputs, additional_context: context },
+        body: { client, existing_outputs, additional_context: context, brand_context: brandContext },
       });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
