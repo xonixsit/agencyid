@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { BarChart3, Loader2, Save, Layout, Brain, Sparkles } from "lucide-react";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 
 const FUNNEL_TYPES = [
   { value: "lead_generation", label: "Lead Generation Funnel" },
@@ -190,8 +190,8 @@ export default function ConversionDesigner() {
               <CardTitle className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Generated Funnel Design</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-invert prose-sm max-w-none">
-                <ReactMarkdown>{generatedDesign}</ReactMarkdown>
+              <div className="max-w-none">
+                <DocumentView content={generatedDesign} />
               </div>
             </CardContent>
           </Card>

@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 
 const AUTOMATION_TYPES = [
   { value: "nurture_sequence", label: "Nurture Sequence" },
@@ -161,8 +161,8 @@ export default function Automations() {
                 <Save className="h-4 w-4 mr-1" />Save
               </Button>
             </div>
-            <div className="prose prose-invert prose-sm max-w-none text-foreground">
-              <ReactMarkdown>{generatedAutomation}</ReactMarkdown>
+            <div className="max-w-none text-foreground">
+              <DocumentView content={generatedAutomation} />
             </div>
           </Card>
         )}
@@ -197,8 +197,8 @@ function SavedAutomationCard({ automation, onLoad }: { automation: any; onLoad: 
         </div>
       </div>
       {expanded && (
-        <div className="mt-3 pt-3 border-t border-border prose prose-invert prose-sm max-w-none text-foreground">
-          <ReactMarkdown>{automation.content}</ReactMarkdown>
+        <div className="mt-3 pt-3 border-t border-border max-w-none text-foreground">
+          <DocumentView content={automation.content} />
         </div>
       )}
     </Card>

@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Target, Loader2, ChevronDown, Save, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 import { useSearchParams } from "react-router-dom";
 
 const PLATFORMS = [
@@ -216,8 +216,8 @@ export default function Campaigns() {
                 {saveMutation.isPending ? "Saving..." : "Save Plan"}
               </Button>
             </div>
-            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground prose-table:text-secondary-foreground prose-th:text-foreground prose-th:border-border prose-td:border-border">
-              <ReactMarkdown>{generatedPlan}</ReactMarkdown>
+            <div className="max-w-none">
+              <DocumentView content={generatedPlan} />
             </div>
           </div>
         )}

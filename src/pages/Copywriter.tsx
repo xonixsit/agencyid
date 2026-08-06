@@ -7,7 +7,7 @@ import { PenTool, Loader2, ChevronDown, Copy, Check, Brain, Sparkles } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 
 const copyTypes = [
   { value: "ad_copy", label: "Ad Copy" },
@@ -209,8 +209,8 @@ export default function Copywriter() {
                 {copied ? "Copied" : "Copy"}
               </Button>
             </div>
-            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground">
-              <ReactMarkdown>{generatedCopy}</ReactMarkdown>
+            <div className="max-w-none">
+              <DocumentView content={generatedCopy} />
             </div>
           </div>
         )}

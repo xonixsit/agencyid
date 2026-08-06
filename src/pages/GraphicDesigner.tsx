@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 import { useLatestStrategy } from "@/hooks/use-latest-strategy";
 import { useSuggestContext } from "@/hooks/use-suggest-context";
 import { Loader2, Copy, Save, Palette, ChevronDown, Brain, Sparkles, ImageIcon, Download, Trash2 } from "lucide-react";
@@ -264,8 +264,8 @@ export default function GraphicDesigner() {
                 </Button>
               </div>
             </div>
-            <div className="prose prose-invert prose-sm max-w-none">
-              <ReactMarkdown>{generatedBrief}</ReactMarkdown>
+            <div className="max-w-none">
+              <DocumentView content={generatedBrief} />
             </div>
           </Card>
         )}
@@ -354,8 +354,8 @@ function SavedBriefCard({ brief, onLoad }: { brief: any; onLoad: (c: string, id:
         </div>
       </div>
       {open && (
-        <div className="mt-3 pt-3 border-t border-border prose prose-invert prose-sm max-w-none">
-          <ReactMarkdown>{brief.content}</ReactMarkdown>
+        <div className="mt-3 pt-3 border-t border-border max-w-none">
+          <DocumentView content={brief.content} />
         </div>
       )}
     </Card>

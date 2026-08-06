@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Brain, Loader2, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ReactMarkdown from "react-markdown";
+import { DocumentView } from "@/components/DocumentView";
 
 export default function Strategist() {
   const [selectedClientId, setSelectedClientId] = useState("");
@@ -150,8 +150,8 @@ export default function Strategist() {
             <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">
               Generated Strategy
             </h2>
-            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-p:text-secondary-foreground prose-strong:text-foreground prose-li:text-secondary-foreground">
-              <ReactMarkdown>{generatedStrategy}</ReactMarkdown>
+            <div className="max-w-none">
+              <DocumentView content={generatedStrategy} />
             </div>
           </div>
         )}
